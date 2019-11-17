@@ -1,0 +1,15 @@
+Package: pudms
+Type: Package
+Title: Positive-Unlabeled Learning for the Analysis of Deep Mutational Scanning Datasets
+Version: 1.0
+Date: 2019-11-14
+Author: Hyebin Song
+Maintainer: Hyebin Song <hsong56@wisc.edu>
+Description: Sequence-Function Learning via PUlasso algorithm
+License: CC0
+Depends: PUlasso, PRROC, ggplot2
+RoxygenNote: 6.1.1
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
