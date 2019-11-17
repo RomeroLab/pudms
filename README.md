@@ -32,7 +32,11 @@ Here we demonstrate basic usage of the package using sample labeled and
 unlabeled sequences (10,000 randomly sampled sequences from casp3
 protein data sets)
 
-Input: - path\_l, path\_u - WT (reference sequence) - py1
+Input: 
+
+- path\_l, path\_u 
+- WT (reference sequence) 
+- py1
 
 Here we use the paths where the sample txt files are saved. Please
 replace them with the actual file paths (e.g. `"system.file("extdata",
