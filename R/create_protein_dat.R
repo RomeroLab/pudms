@@ -2,6 +2,7 @@
 #'@import data.table
 #'@export
 create_protein_dat = function(path_l,path_u,WT){
+  
   txtdat_l = read.table(file = path_l,colClasses = "character")
   txtdat_u = read.table(file = path_u,colClasses = "character")
   cat("convert mutations into sequences for a labeled set\n")

@@ -1,3 +1,4 @@
+#'@export
 filter_mut_less_than_thresh<-function(Xprotein, thresh=10, checkResFullRank=T){
   wX=Diagonal(x = Xprotein$wei)%*%Xprotein$X
   cidx_mut_less_thresh = colSums(wX)<=thresh

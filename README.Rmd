@@ -63,18 +63,26 @@ WT = 'MSGISLDNSYKMDYPEMGLCIIINNKNFHKSTGMTSRSGTDVDAANLRETFRNLKYEVRNKNDLTREEIVELMR
 protein_py1 = 0.2 # change this to the prevalence of positive examples in your unlabeled set
 ```
 
-1. We generate a protein dataset from the specified paths:
+1. We generate a protein dataset from the txtfiles with specified paths:
 
 ```{r}
 smpl_dat = create_protein_dat(path_l = path_l, path_u = path_u, WT = WT)
 ```
 
+(If txtfiles contain sequences, `create_grouped_dat` function can be directly called to generate a protein dataset.)
+
 2. Now, we fit a model:
 
 ```{r}
 # we filter sequences containing mutations with total number < nobs_thresh
-fit1 = pudms(protein_dat = smpl_dat,py1 = protein_py1,nobs_thresh = 10) 
+fit1 = pudms(protein_dat = smpl_dat,
+             py1 = protein_py1,
+             order = 1,
+             aggregate = T,
+             basestate = NULL,
+             nobs_thresh = 10) 
 ```
+(pudms is a wrapper function which sequentially calls `create_model_frame`,`filter_mut_less_than_thresh`, `grpPUlasso`, and `pval_pu` functions)
 
 3. Done!
 
@@ -110,7 +118,12 @@ tt_smpl = cv_smpl$test_grouped_dat  # test set
 2. We fit a model using a training set `tr_smpl`:
 
 ```{r}
-cv.r = pudms(protein_dat = tr_smpl,py1 = protein_py1,nobs_thresh = 10)
+cv.r = pudms(protein_dat = tr_smpl,
+             py1 = protein_py1,
+             order = 1,
+             aggregate = T,
+             basestate = NULL,
+             nobs_thresh = 10)
 ```
 
 3. We obtain a PU-corrected ROC curve using a test set `tt_smpl`:
@@ -118,7 +131,9 @@ cv.r = pudms(protein_dat = tr_smpl,py1 = protein_py1,nobs_thresh = 10)
 ``````{r,fig.height=4.5,fig.width=4.5}
 roc = corrected_roc_curve(coef = coef(cv.r), 
                           test_grouped_dat = tt_smpl,
-                          py1 = protein_py1)
+                          py1 = protein_py1,
+                          order = 1,
+                          basestate = NULL)
 roc$rocplot
 ```
 

@@ -2,7 +2,7 @@
 #'@import magrittr
 #'@import pbapply
 #'@import foreach
-
+#'@export
 create_model_frame <- function(grouped_dat, order = 1, aggregate = T, basestate = NULL,verbose=T){
   
   # obtain sequences from grouped_dat

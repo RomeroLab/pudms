@@ -1,5 +1,6 @@
 #'@import PRROC
 #'@import ggplot2
+#'@export
 #'
 rocplot = function(roc_curve,py1, corrected = TRUE){
   

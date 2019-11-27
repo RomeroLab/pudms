@@ -1,3 +1,4 @@
+#'@export
 pval_pu <- function(X,z,theta,py1, weights = rep(1,nrow(X))){
   
   wei = weights

@@ -2,11 +2,22 @@
 #'@export
 pudms <- function (protein_dat,
                    py1,
-                   nobs_thresh=10,lambda=0,pvalue = T,maxit=1000,
+                   order = 1, 
+                   aggregate = T, 
+                   basestate = NULL,
+                   verbose=T,
+                   nobs_thresh=10,
+                   lambda=0,
+                   pvalue = T,
+                   maxit=1000,
                    p.adjust.method = "BH"){
 
   cat(" 1. create a model matrix X from an aggregated dataset:\n")
-  Xprotein = create_model_frame(grouped_dat = protein_dat)
+  Xprotein = create_model_frame(grouped_dat = protein_dat,
+                                order = order, 
+                                aggregate = aggregate,
+                                basestate = basestate,
+                                verbose = verbose)
   
   # remove sequences which contain a feature whose number of mutations < nobs_thresh
   # at the end, the function checks whether filtered X matrix is of full rank. 

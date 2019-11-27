@@ -3,9 +3,15 @@
 corrected_roc_curve = function(coef,
                                test_grouped_dat,
                                py1,
-                               order=1) {
+                               order=1,
+                               basestate = NULL,
+                               verbose=T) {
   
-  rocdata = ROCdata(coef = coef,test_grouped_dat = test_grouped_dat,order = order)
+  rocdata = ROCdata(coef = coef,
+                    test_grouped_dat = test_grouped_dat,
+                    order = order,
+                    basestate = basestate,
+                    verbose = verbose)
   
   r = roc.curve(
     scores.class0 = rocdata$pr_test,

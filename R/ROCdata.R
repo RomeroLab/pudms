@@ -1,6 +1,9 @@
+#'@export
 ROCdata = function(coef,
                    test_grouped_dat,
-                   order = 1) {
+                   order = 1,
+                   basestate = NULL,
+                   verbose=T) {
   
   unique_X <- function(X,seqId){
     # return unique rows of X where each row corresponds to each seqId
@@ -14,8 +17,9 @@ ROCdata = function(coef,
   a_Xdat_test = create_model_frame(
     grouped_dat = test_grouped_dat,
     order = order,
-    aggregate = T
-  )
+    aggregate = T, 
+    basestate = basestate,
+    verbose=verbose)
   
   Xtest_unique = with(a_Xdat_test, unique_X(X, seqId))
   
@@ -25,7 +29,6 @@ ROCdata = function(coef,
   a0 = coef[1]
   coef_test = coef[names(coef) %in% colnames(Xtest_unique)]
   Xtest = Xtest_unique[, colnames(Xtest_unique) %in% names(coef)]
-  
   
   eta = Xtest %*% coef_test + a0
   pr_test = as.numeric(1 / (1 + exp(-eta)))
