@@ -32,11 +32,7 @@ Here we demonstrate basic usage of the package using sample labeled and
 unlabeled sequences (10,000 randomly sampled sequences from casp3
 protein data sets)
 
-Input: 
-
-- path\_l, path\_u 
-- WT (reference sequence) 
-- py1
+Input: - path\_l, path\_u - WT (reference sequence) - py1
 
 Here we use the paths where the sample txt files are saved. Please
 replace them with the actual file paths (e.g. `"system.file("extdata",
@@ -62,7 +58,8 @@ WT = 'MSGISLDNSYKMDYPEMGLCIIINNKNFHKSTGMTSRSGTDVDAANLRETFRNLKYEVRNKNDLTREEIVELMR
 protein_py1 = 0.2 # change this to the prevalence of positive examples in your unlabeled set
 ```
 
-1.  We generate a protein dataset from the specified paths:
+1.  We generate a protein dataset from the txtfiles with specified
+    paths:
 
 <!-- end list -->
 
@@ -72,6 +69,9 @@ smpl_dat = create_protein_dat(path_l = path_l, path_u = path_u, WT = WT)
 #> convert mutations into sequences for an unlabeled set
 ```
 
+(If txtfiles contain sequences, `create_grouped_dat` function can be
+directly called to generate a protein dataset.)
+
 2.  Now, we fit a
 model:
 
@@ -79,7 +79,12 @@ model:
 
 ``` r
 # we filter sequences containing mutations with total number < nobs_thresh
-fit1 = pudms(protein_dat = smpl_dat,py1 = protein_py1,nobs_thresh = 10) 
+fit1 = pudms(protein_dat = smpl_dat,
+             py1 = protein_py1,
+             order = 1,
+             aggregate = T,
+             basestate = NULL,
+             nobs_thresh = 10) 
 #>  1. create a model matrix X from an aggregated dataset:
 #> create a sequence matrix
 #> check number of unique factors in each position
@@ -96,6 +101,10 @@ fit1 = pudms(protein_dat = smpl_dat,py1 = protein_py1,nobs_thresh = 10)
 #> 
 #>  3. compute p-values
 ```
+
+(pudms is a wrapper function which sequentially calls
+`create_model_frame`,`filter_mut_less_than_thresh`, `grpPUlasso`, and
+`pval_pu` functions)
 
 3.  Done\!
 
@@ -137,7 +146,12 @@ tt_smpl = cv_smpl$test_grouped_dat  # test set
 <!-- end list -->
 
 ``` r
-cv.r = pudms(protein_dat = tr_smpl,py1 = protein_py1,nobs_thresh = 10)
+cv.r = pudms(protein_dat = tr_smpl,
+             py1 = protein_py1,
+             order = 1,
+             aggregate = T,
+             basestate = NULL,
+             nobs_thresh = 10)
 #>  1. create a model matrix X from an aggregated dataset:
 #> create a sequence matrix
 #> check number of unique factors in each position
@@ -162,7 +176,9 @@ cv.r = pudms(protein_dat = tr_smpl,py1 = protein_py1,nobs_thresh = 10)
 ``` r
 roc = corrected_roc_curve(coef = coef(cv.r), 
                           test_grouped_dat = tt_smpl,
-                          py1 = protein_py1)
+                          py1 = protein_py1,
+                          order = 1,
+                          basestate = NULL)
 #> create Xtest for validation examples 
 #> create a sequence matrix
 #> check number of unique factors in each position
