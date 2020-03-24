@@ -1,3 +1,11 @@
+#' Create a model frame list from a grouped data set
+#' 
+#' @param grouped_dat a grouped data set
+#' @param order an integer of 1 or 2; main effects (order=1) or interaction effects (order=2) in X
+#' @param aggregate a logical value
+#' @param basestate a letter
+#' @param verbose a logical value
+#' @return a list (X,z,wei,seqId,blockidx)
 #'@import Matrix
 #'@import magrittr
 #'@import pbapply

@@ -8,7 +8,7 @@ Maintainer: Hyebin Song <hsong56@wisc.edu>
 Description: Sequence-Function Learning via PUlasso algorithm
 License: CC0
 Depends: PUlasso, PRROC, ggplot2
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
 Suggests: 
     knitr,
     rmarkdown

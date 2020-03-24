@@ -1,3 +1,9 @@
+#' Created a data set grouped by a sequence
+#'
+#'@import magrittr
+#'@param seq_l nl by 1 data.table (colname = V1)
+#'@param seq_u nu by 1 data.table (colname = V1)
+#'@return A data table of (sequence, labeled, unlabeled, seqId)
 #'@import magrittr
 #'@import data.table
 #'@export

@@ -1,3 +1,9 @@
+#' Delete columns such that colSums <= thresh, and rows which contain a mutation into the deleted columns
+#' 
+#'@param Xprotein list (X,z,wei, seqId, blockId)
+#'@param thresh an integer threshold
+#'@param checkResFullRank a logical value 
+#'@return a list (X,z,wei, seqId, blockId)
 #'@export
 filter_mut_less_than_thresh<-function(Xprotein, thresh=10, checkResFullRank=T){
   wX=Diagonal(x = Xprotein$wei)%*%Xprotein$X
@@ -13,7 +19,8 @@ filter_mut_less_than_thresh<-function(Xprotein, thresh=10, checkResFullRank=T){
   if(checkResFullRank){
     cat("check whether a filtered X is a full rank matrix\n")
     q=qr(as.matrix(t(res$X)%*%res$X))
-    if(q$rank!=ncol(res$X)){warning("filtered X is not a full rank matrix")}
+    if(q$rank!=ncol(res$X)){warning("filtered X is not a full rank matrix")
+      }else{cat("filtered X is a full rank matrix\n")}
   }
   
   return(res)

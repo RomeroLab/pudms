@@ -1,3 +1,11 @@
+#' Obtain an asymptotic variance matrix of theta, standard errors, zvalues, and pvalues
+#'
+#'@param X an n by p matrix
+#'@param z an n by 1 vector
+#'@param theta a p+1 by 1 vector
+#'@param py1 a numeric value
+#'@param weights an n by 1 vector
+#'@return a list (I = expected Fisher matrix, invI = inverse of I, se = sqrt(diag(invI)), zvalue, pvalue)
 #'@export
 pval_pu <- function(X,z,theta,py1, weights = rep(1,nrow(X))){
   
@@ -19,8 +27,8 @@ pval_pu <- function(X,z,theta,py1, weights = rep(1,nrow(X))){
   w2 = (1/(1+exp(eta)))^2 #hi'^2
   
   W = Matrix::Diagonal(x = as.numeric(wei*w1*w2), n=nrow(Xint))
-  i = t(Xint)%*%W%*%Xint
-  ii = chol2inv(chol(i))
+  i = t(Xint)%*%W%*%Xint 
+  ii = chol2inv(chol(i)) # symmetric, positive definite
   se = sqrt(diag(ii))
   zvalue = theta/se
   pval = pnorm(abs(zvalue),lower.tail = F)*2

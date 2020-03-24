@@ -1,21 +1,34 @@
+#' DMS experiments analysis using PUlasso method
+#'
+#'@param protein_dat a data table containing (sequence, labeled, unlabeled, seqId)
+#'@param order an integer
+#'@param basestate a character for a single base state
+#'@param verbose a logical value
+#'@param nobs_thresh minimum required number of mutations
+#'@param lambda l1 penalty
+#'@param pvalue a logial value; if TRUE, p-values based on the asymptotic distribution are obtained
+#'@param maxit maximum number of iterations
+#'@param intercept a logical value; if TRUE, an estimated intercept is reported together with other coefficients
+#'@param p.adjust.method method for multiple comparison
+#'@return a list containing a fit (from grpPUlasso), result_table (data.frame), and nobs
 #'@import PUlasso
 #'@export
 pudms <- function (protein_dat,
                    py1,
                    order = 1, 
-                   aggregate = T, 
                    basestate = NULL,
                    verbose=T,
                    nobs_thresh=10,
                    lambda=0,
                    pvalue = T,
+                   intercept = F,
                    maxit=1000,
                    p.adjust.method = "BH"){
 
   cat(" 1. create a model matrix X from an aggregated dataset:\n")
   Xprotein = create_model_frame(grouped_dat = protein_dat,
                                 order = order, 
-                                aggregate = aggregate,
+                                aggregate = T,
                                 basestate = basestate,
                                 verbose = verbose)
   
@@ -55,13 +68,19 @@ pudms <- function (protein_dat,
   nobs = c(0,colSums(Diagonal(x=filtered_Xprotein$wei)%*%filtered_Xprotein$X))
   
   # summary 
-  dat = data.frame(coef= as.numeric(fit$coef),
-                   se = pvalues$se, 
-                   zvalue = pvalues$zvalue, 
-                   p = pvalues$pvalue,
-                   p.adj = p.adjust(pvalues$pvalue, method = p.adjust.method),
-                   nobs = nobs)
-  dat = dat[-1,] # remove an intercept
+  if(pvalue){
+    dat = data.frame(coef= as.numeric(fit$coef),
+                     se = pvalues$se, 
+                     zvalue = pvalues$zvalue, 
+                     p = pvalues$pvalue,
+                     p.adj = p.adjust(pvalues$pvalue, method = p.adjust.method),
+                     nobs = nobs)
+  }else{
+    dat = data.frame(coef= as.numeric(fit$coef),
+                     nobs = nobs)
+  }
+  
+  if(!intercept){dat = dat[-1,]} # remove an intercept
   res = structure(list(fitted = fit, result_table = dat, nobs = nobs),class="pudms.fit")
   
   return(res)
