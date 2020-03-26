@@ -29,33 +29,33 @@ devtools::install_github("RomeroLab/pu-learning")
 ### Model fitting with a full data set
 
 Here we demonstrate basic usage of the package using sample labeled and
-unlabeled sequences (10,000 randomly sampled sequences from casp3
-protein data sets)
+unlabeled sequences
 
-Input: - path\_l, path\_u - WT (reference sequence) - py1
+Input: - path\_l and path\_u (file paths) - WT (reference sequence) -
+py1
 
-Here we use the paths where the sample txt files are saved. Please
-replace them with the actual file paths (e.g. `"system.file("extdata",
-"sample_positive_mutations.txt", package = "pudms",mustWork = T)"` -\>
-`"your dir/filename.txt"`).
+Here we use the paths (path\_l and path\_u) where the sample txt files
+are saved. Please replace them with the actual file paths (e.g. `path_l
+= your dir/filename.txt"`.)
 
 ``` r
 library(pudms)
 
 # Inputs
 
-## paths for the example txt files
-## replace them with paths for your txt files
-path_l = system.file("extdata", "sample_positive_mutations.txt", 
-                     package = "pudms",mustWork = T)
-path_u = system.file("extdata", "sample_unlabeled_mutations.txt", 
-                     package = "pudms",mustWork = T)
+## paths for the example txt files (mutations)
+path_muts_l = "inst/extdata/sel_muts.txt"
+path_muts_u = "inst/extdata/ref_muts.txt"
+
+## paths for the example txt files (mutations)
+path_seqs_l = "inst/extdata/sel_seqs.txt"
+path_seqs_u = "inst/extdata/ref_seqs.txt"
 
 ## WT (reference) sequence
-WT = 'MSGISLDNSYKMDYPEMGLCIIINNKNFHKSTGMTSRSGTDVDAANLRETFRNLKYEVRNKNDLTREEIVELMRDVSKEDHSKRSSFVCVLLSHGEEGIIFGTNGPVDLKKITNFFRGDRCRSLTGKPKLFIIQACRGTELDCGIETDSGVDDDMACHKIPVEADFLYAYSTAPGYYSWRNSKDGSWFIQSLCAMLKQYADKLEFMHILTRVNRKVATEFESFSFDATFHAKKQIPCIVSMLTKELYFYHLEHHHHHH*'
+WT = 'MYYKEIAHALFSALFALSELYIAVRY*'
 
 ## py1 
-protein_py1 = 0.2 # change this to the prevalence of positive examples in your unlabeled set
+protein_py1 = 0.01 # change this to the prevalence of positive examples in your unlabeled set
 ```
 
 1.  We generate a protein dataset from the txtfiles with specified
@@ -64,9 +64,12 @@ protein_py1 = 0.2 # change this to the prevalence of positive examples in your u
 <!-- end list -->
 
 ``` r
-smpl_dat = create_protein_dat(path_l = path_l, path_u = path_u, WT = WT)
+# for mutations files
+smpl_dat1 = create_protein_dat(path_l = path_muts_l, path_u = path_muts_u, WT = WT,type = "mutations")
 #> convert mutations into sequences for a labeled set
 #> convert mutations into sequences for an unlabeled set
+# for sequences files
+smpl_dat2 = create_protein_dat(path_l = path_seqs_l, path_u = path_seqs_u, WT = WT,type = "sequences")
 ```
 
 (If txtfiles contain sequences, `create_grouped_dat` function can be
@@ -79,10 +82,9 @@ model:
 
 ``` r
 # we filter sequences containing mutations with total number < nobs_thresh
-fit1 = pudms(protein_dat = smpl_dat,
+fit1 = pudms(protein_dat = smpl_dat1,
              py1 = protein_py1,
              order = 1,
-             aggregate = T,
              basestate = NULL,
              nobs_thresh = 10) 
 #>  1. create a model matrix X from an aggregated dataset:
@@ -90,13 +92,14 @@ fit1 = pudms(protein_dat = smpl_dat,
 #> check number of unique factors in each position
 #> obtain ``base`` amino-acid states
 #> convert to the sparse one-hot-encoding model matrix
-#> 2042 unique sequences which contain a feature whose nmuts < 10  are removed
+#> 276 unique sequences which contain a feature whose nmuts < 10  are removed
 #> check whether a filtered X is a full rank matrix
+#> filtered X is a full rank matrix
 #> 
 #> 
 #>  2. fit a model
 #> Fitting 0th lambda
-#> converged at 432th iterations
+#> converged at 462th iterations
 #> 
 #> 
 #>  3. compute p-values
@@ -132,7 +135,7 @@ curve with remaining 10% of the data.
 <!-- end list -->
 
 ``` r
-cv_smpl = cv_grouped_dat(grouped_dat = smpl_dat,
+cv_smpl = cv_grouped_dat(grouped_dat = smpl_dat1,
                          test_idx = 1,
                          nfolds = 10,
                          seed = 1) # seed for reproducibility
@@ -149,7 +152,6 @@ tt_smpl = cv_smpl$test_grouped_dat  # test set
 cv.r = pudms(protein_dat = tr_smpl,
              py1 = protein_py1,
              order = 1,
-             aggregate = T,
              basestate = NULL,
              nobs_thresh = 10)
 #>  1. create a model matrix X from an aggregated dataset:
@@ -157,13 +159,14 @@ cv.r = pudms(protein_dat = tr_smpl,
 #> check number of unique factors in each position
 #> obtain ``base`` amino-acid states
 #> convert to the sparse one-hot-encoding model matrix
-#> 2065 unique sequences which contain a feature whose nmuts < 10  are removed
+#> 323 unique sequences which contain a feature whose nmuts < 10  are removed
 #> check whether a filtered X is a full rank matrix
+#> filtered X is a full rank matrix
 #> 
 #> 
 #>  2. fit a model
 #> Fitting 0th lambda
-#> converged at 412th iterations
+#> converged at 476th iterations
 #> 
 #> 
 #>  3. compute p-values
