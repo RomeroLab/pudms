@@ -6,7 +6,10 @@
 auc<-function(vfit,py1idx=NULL){
   
   #if py1idx is not null, check py1idx is valid
-  if(!(is.null(py1idx) & py1idx%in%1:length(vfit$py1))){stop("py1idx should be between 1 and length(input$py1)")}
+  if(!is.null(py1idx)){
+    if(py1idx%in%1:length(vfit$py1)) stop("py1idx should be between 1 and length(input$py1)")
+  }
+    
   #if py1idx is null, py1.opt has to be not a null value
   if(is.null(py1idx) & is.null(vfit$py1.opt)){stop("py1.opt is NULL")}
   
