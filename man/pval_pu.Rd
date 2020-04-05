@@ -4,7 +4,7 @@
 \alias{pval_pu}
 \title{Obtain an asymptotic variance matrix of theta, standard errors, zvalues, and pvalues}
 \usage{
-pval_pu(X, z, theta, py1, weights = rep(1, nrow(X)))
+pval_pu(X, z, theta, py1, weights = rep(1, nrow(X)), effective_n_prop = 1)
 }
 \arguments{
 \item{X}{an n by p matrix}
@@ -16,6 +16,8 @@ pval_pu(X, z, theta, py1, weights = rep(1, nrow(X)))
 \item{py1}{a numeric value}
 
 \item{weights}{an n by 1 vector}
+
+\item{effective_n_prop}{a numeric value}
 }
 \value{
 a list (I = expected Fisher matrix, invI = inverse of I, se = sqrt(diag(invI)), zvalue, pvalue)

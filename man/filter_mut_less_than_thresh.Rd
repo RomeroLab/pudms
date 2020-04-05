@@ -4,7 +4,12 @@
 \alias{filter_mut_less_than_thresh}
 \title{Delete columns such that colSums <= thresh, and rows which contain a mutation into the deleted columns}
 \usage{
-filter_mut_less_than_thresh(Xprotein, thresh = 10, checkResFullRank = T)
+filter_mut_less_than_thresh(
+  Xprotein,
+  thresh = 10,
+  checkResFullRank = T,
+  verbose = T
+)
 }
 \arguments{
 \item{Xprotein}{list (X,z,wei, seqId, blockId)}
@@ -12,6 +17,8 @@ filter_mut_less_than_thresh(Xprotein, thresh = 10, checkResFullRank = T)
 \item{thresh}{an integer threshold}
 
 \item{checkResFullRank}{a logical value}
+
+\item{verbose}{a logical value. The default is TRUE}
 }
 \value{
 a list (X,z,wei, seqId, blockId)

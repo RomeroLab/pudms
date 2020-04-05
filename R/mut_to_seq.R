@@ -1,14 +1,24 @@
 #'@import data.table
-#'@import progress
-#'
-mut_to_seq = function(txtdat,WT){
+#'@import pbapply
+#'@import doParallel
+mut_to_seq = function(txtdat,WT,nCores = 1){
   dat =strsplit(txtdat,split = ",")
-  WT = foreach(i=1:nchar(WT),.combine = "c")%do% {substr(WT,i,i)}
   
-  pb = progress::progress_bar$new(total = length(dat))
-  seqdat = foreach(x=1:length(dat),.combine = "rbind")%do%{
-    pb$tick()
-    nmuts = length(dat[[x]])
+  WT = sapply(X=1:nchar(WT),FUN = function(i) substr(WT,i,i))
+  
+  if(nCores>1){
+    isParallel = TRUE
+    nCores = min(nCores,detectCores())
+    cl <- makeCluster(nCores)
+    registerDoParallel(cl)
+    clusterCall(cl, function(x) .libPaths(x), .libPaths())
+    parallel::clusterExport(cl= cl,varlist = c("dat","WT"))
+  }
+  
+  # for each row, we create a new sequence
+  
+  FUN = function(x){
+    nmuts = length(dat[[x]]); 
     newseq = WT
     for(i in 1:nmuts){
       m = dat[[x]][i]
@@ -20,6 +30,10 @@ mut_to_seq = function(txtdat,WT){
     }
     newseq
   }
+  
+  result = pblapply(X = 1:length(dat),FUN = FUN,cl = cl)
+  seqdat = do.call("rbind",result)
+  
   rownames(seqdat)=1:length(dat)
   seq = sapply(1:nrow(seqdat), function(i) paste(seqdat[i,],collapse = ""))
   data.table(data.frame(V1=seq,stringsAsFactors = F))

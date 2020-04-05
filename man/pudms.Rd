@@ -6,38 +6,58 @@
 \usage{
 pudms(
   protein_dat,
-  py1,
+  py1 = NULL,
   order = 1,
-  basestate = NULL,
+  refstate = NULL,
   verbose = T,
   nobs_thresh = 10,
   lambda = 0,
+  nlambda = 10,
   pvalue = T,
+  n_eff_prop = NULL,
   intercept = F,
   maxit = 1000,
-  p.adjust.method = "BH"
+  eps = 0.001,
+  inner_eps = 0.01,
+  initial_coef = NULL,
+  p.adjust.method = "BH",
+  outfile = NULL
 )
 }
 \arguments{
-\item{protein_dat}{a data table containing (sequence, labeled, unlabeled, seqId)}
+\item{protein_dat}{input data. A data table containing (sequence, labeled, unlabeled, seqId)}
 
-\item{order}{an integer}
+\item{py1}{a numeric value representing the prevalence of positives in the unlabeled data}
 
-\item{basestate}{a character for a single base state}
+\item{order}{an integer; 1= main effects, 2= main effects + pairwise effects}
 
-\item{verbose}{a logical value}
+\item{refstate}{a character which will be used for the common reference state; the default is to use the most frequent amino acid as the reference state for each of the position.}
 
-\item{nobs_thresh}{minimum required number of mutations}
+\item{verbose}{a logical value. The default is TRUE}
+
+\item{nobs_thresh}{the number of minimum required mutations per position}
 
 \item{lambda}{l1 penalty}
 
+\item{nlambda}{if lambda= NULL, a sequence of nlambda is created for fitting}
+
 \item{pvalue}{a logial value; if TRUE, p-values based on the asymptotic distribution are obtained}
+
+\item{n_eff_prop}{proportion of an effective sample size}
 
 \item{intercept}{a logical value; if TRUE, an estimated intercept is reported together with other coefficients}
 
 \item{maxit}{maximum number of iterations}
 
+\item{eps}{convergence threshold for the outer loop}
+
+\item{inner_eps}{convergence threshold for the inner loop}
+
+\item{initial_coef}{a vector representing an initial point where we start PUlasso algorithm from.}
+
 \item{p.adjust.method}{method for multiple comparison}
+
+\item{outfile}{NULL or a string; if a string is provided, an output with the name of the string will be exported in a working directory.}
 }
 \value{
 a list containing a fit (from grpPUlasso), result_table (data.frame), and nobs

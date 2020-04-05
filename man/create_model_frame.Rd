@@ -8,18 +8,18 @@ create_model_frame(
   grouped_dat,
   order = 1,
   aggregate = T,
-  basestate = NULL,
+  refstate = NULL,
   verbose = T
 )
 }
 \arguments{
 \item{grouped_dat}{a grouped data set}
 
-\item{order}{an integer of 1 or 2; main effects (order=1) or interaction effects (order=2) in X}
+\item{order}{an integer; 1= main effects, 2= main effects + pairwise effects}
 
 \item{aggregate}{a logical value}
 
-\item{basestate}{a letter}
+\item{refstate}{a character which will be used for the common reference state; the default is to use the most frequent amino acid as the reference state for each of the position.}
 
 \item{verbose}{a logical value}
 }

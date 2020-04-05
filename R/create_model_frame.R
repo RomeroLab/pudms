@@ -1,17 +1,17 @@
 #' Create a model frame list from a grouped data set
 #' 
 #' @param grouped_dat a grouped data set
-#' @param order an integer of 1 or 2; main effects (order=1) or interaction effects (order=2) in X
+#' @param order an integer; 1= main effects, 2= main effects + pairwise effects
 #' @param aggregate a logical value
-#' @param basestate a letter
+#' @param refstate a character which will be used for the common reference state; the default is to use the most frequent amino acid as the reference state for each of the position. 
 #' @param verbose a logical value
 #' @return a list (X,z,wei,seqId,blockidx)
-#'@import Matrix
-#'@import magrittr
-#'@import pbapply
-#'@import foreach
-#'@export
-create_model_frame <- function(grouped_dat, order = 1, aggregate = T, basestate = NULL,verbose=T){
+#' @import Matrix
+#' @import magrittr
+#' @import pbapply
+#' @importFrom stats relevel
+#' @export
+create_model_frame <- function(grouped_dat, order = 1, aggregate = T, refstate = NULL,verbose=T){
   
   # obtain sequences from grouped_dat
   if(aggregate){
@@ -26,29 +26,33 @@ create_model_frame <- function(grouped_dat, order = 1, aggregate = T, basestate 
   
   if(verbose){cat("create a sequence matrix\n")}
   # create seq mat (each row is a length seqlen vector)
+  if(!verbose){pboptions(type ="none")} # suppress a progress bar if verbose == F
   seqmat = data.frame(pblapply(1:seqlen,function(i){substr(sequence,i,i)}))
   colnames(seqmat) = paste("P",0:(seqlen-1),".",sep="")
   
   # check number of unique factors in each position
+  pbo = pboptions()
   if(verbose){cat("check number of unique factors in each position\n")}
+  if(!verbose){pboptions(type ="none")}
   cidx = pblapply(seqmat, function(x){length(levels(x))}) %>% unlist>1
   seqmat = seqmat[,cidx]
   seqlen = ncol(seqmat)
-  if(verbose){cat("obtain ``base`` amino-acid states\n")}
-  if(is.null(basestate)){
-    # Obtain "base" amino-acid states
+  
+  if(is.null(refstate)){
+    if(verbose){cat("obtain ``reference`` amino-acid states\n")}
+    # Obtain "reference" amino-acid states
     # The most frequent state
-    basestates <- pblapply( seqmat, function(x){ tbl = table(x); names(which(tbl == max(tbl))) }) %>% unlist
+    refstates <- pblapply( seqmat, function(x){ tbl = table(x); names(which(tbl == max(tbl))) }) %>% unlist
   }else{
     all_states = Reduce(intersect, lapply(seqmat,levels)) # levels which exist in all columns
-    if(!basestate %in% all_states){stop("wrong basestate")}
-    basestates = rep(basestate, seqlen)
+    if(!refstate %in% all_states){stop("refstate amino acid does not exist in all positions")}
+    refstates = rep(refstate, seqlen)
   }
   
-  # relevel each column of the seqmat so that ref = basestate
+  # relevel each column of the seqmat so that ref = refstate
   seqmat_colname = colnames(seqmat)
-  seqmat_colname = paste(basestates, gsub(seqmat_colname,pattern = "P",replacement = ""), sep="")
-  seqmat = data.frame (lapply(1:seqlen, function(i){relevel(seqmat[,i],ref = basestates[i])} ))
+  seqmat_colname = paste(refstates, gsub(seqmat_colname,pattern = "P",replacement = ""), sep="")
+  seqmat = data.frame (lapply(1:seqlen, function(i){relevel(seqmat[,i],ref = refstates[i])} ))
   colnames(seqmat) = seqmat_colname
   
   if(verbose){cat("convert to the sparse one-hot-encoding model matrix\n")}

@@ -4,12 +4,13 @@
 #' @param test_grouped_dat a data table (sequence, labeled, unlabeled, seqId) containing validation examples
 #' @param order a considered order of effects
 #' @param verbose a logical value
+#' @param refstate a character which will be used for the common reference state; the default is to use the most frequent amino acid as the reference state for each of the position. 
 #' @return a data table containing (seqId, labeled, unlabeled, pr_test)
 #'@export
-ROCdata = function(coef,
+rocdata = function(coef,
                    test_grouped_dat,
                    order = 1,
-                   basestate = NULL,
+                   refstate = NULL,
                    verbose=T) {
   
   unique_X <- function(X,seqId){
@@ -21,12 +22,12 @@ ROCdata = function(coef,
   }
   
   # create (X,z,wei) for a validation set
-  cat("create Xtest for validation examples \n")
+  if(verbose) cat("create Xtest for validation examples \n")
   a_Xdat_test = create_model_frame(
     grouped_dat = test_grouped_dat,
     order = order,
     aggregate = T, 
-    basestate = basestate,
+    refstate = refstate,
     verbose=verbose)
   
   # keep only unique sequences in Xtest

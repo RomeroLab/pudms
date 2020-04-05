@@ -4,7 +4,14 @@
 \alias{cv_grouped_dat}
 \title{Create (train,test) grouped data sets from a grouped data set}
 \usage{
-cv_grouped_dat(grouped_dat, test_idx, nfolds = 10, seed = 1, folds = NULL)
+cv_grouped_dat(
+  grouped_dat,
+  test_idx,
+  nfolds = 10,
+  seed = 1,
+  folds = NULL,
+  return.datasets = TRUE
+)
 }
 \arguments{
 \item{grouped_dat}{a grouped data set}
@@ -16,6 +23,8 @@ cv_grouped_dat(grouped_dat, test_idx, nfolds = 10, seed = 1, folds = NULL)
 \item{seed}{seed for the reproducibility}
 
 \item{folds}{NULL or a list of (cv_labeled,cv_unlabeled). If NULL, cv_labeled and cv_unlabeled are generated randomly, then train/test sets are created. If not, train/test data sets are created from previous cv_labeled and cv_unlabeled list}
+
+\item{return.datasets}{a logical value; if TRUE, test_grouped_dat / train_grouped_dat will be returned}
 }
 \value{
 a list containing (train_grouped_dat, test_grouped_dat,folds = (cv_labeled, cv_unlabeled))
