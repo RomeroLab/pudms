@@ -100,36 +100,54 @@ v.pudms = function(protein_dat,
   # j: a running index for hyperparam 1,..., nhyperparam
   
   v.dmsfit = list() # list of length length(text_idx); each list contains length(py1) lists
+  v1.varlist = list(cv.datasets=  cv.datasets,
+                    py1 = py1,
+                    order = order, 
+                    refstate = refstate,
+                    verbose= FALSE,
+                    nobs_thresh=nobs_thresh,
+                    lambda=lambda,
+                    pvalue = pvalue,
+                    n_eff_prop = n_eff_prop,
+                    intercept = intercept,
+                    maxit=maxit,
+                    eps = eps,
+                    inner_eps = inner_eps,
+                    initial_coef = initial_coef,
+                    p.adjust.method = p.adjust.method)
   
-  v.1round = function(x,i){
-    dmsfit = pudms(protein_dat = cv.datasets[[i]]$train_grouped_dat,
-                   py1 = py1[x],
-                   order = order, 
-                   refstate = refstate,
-                   verbose= FALSE,
-                   nobs_thresh=nobs_thresh,
-                   lambda=lambda,
-                   pvalue = pvalue,
-                   n_eff_prop = n_eff_prop,
-                   intercept = intercept,
-                   maxit=maxit,
-                   eps = eps,
-                   inner_eps = inner_eps,
-                   initial_coef = initial_coef,
-                   p.adjust.method = p.adjust.method)
+  v.1round = function(x,i,varlist){
     
-    roc = adjusted_roc_curve(coef = coef(dmsfit$fit),
-                             test_grouped_dat = cv.datasets[[i]]$test_grouped_dat,
-                             verbose = F,
-                             py1 = py1[x],
-                             plot = F)
+    dmsfit = with(varlist,
+                  pudms(protein_dat = cv.datasets[[i]]$train_grouped_dat,
+                        py1 = py1[x],
+                        order = order, 
+                        refstate = refstate,
+                        verbose= F,
+                        nobs_thresh=nobs_thresh,
+                        lambda=lambda,
+                        pvalue = pvalue,
+                        n_eff_prop = n_eff_prop,
+                        intercept = intercept,
+                        maxit=maxit,
+                        eps = eps,
+                        inner_eps = inner_eps,
+                        initial_coef = initial_coef,
+                        p.adjust.method = p.adjust.method))
+    
+    roc = with(varlist, 
+               adjusted_roc_curve(coef = coef(dmsfit$fit),
+                                  test_grouped_dat = cv.datasets[[i]]$test_grouped_dat,
+                                  verbose = F,
+                                  py1 = py1[x],
+                                  plot = F))
     
     list(train_fit=dmsfit,test_roc = roc,py1 = py1[x]) 
   }
   
   for(i in 1:length(test_idx)){
     if(verbose) cat("fitting with a fold",i,"...\n")
-    v.dmsfit[[i]] = pblapply(X = 1:length(py1), i=i, cl = cl, FUN =v.1round)
+    v.dmsfit[[i]] = pblapply(X = 1:length(py1), i=i, v1.varlist = v1.varlist,cl = cl, FUN =v.1round)
   }
   
   # assign names to v.dmsfit 

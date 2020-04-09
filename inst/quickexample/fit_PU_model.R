@@ -1,6 +1,6 @@
 # Run this script from the command line 
 # R --vanilla --no-save < fit_PU_model.R
-
+remove(list=ls())
 # LOAD THE PUDMS LIBRARY
 library(pudms)
 
@@ -40,7 +40,7 @@ cvfit = v.pudms(protein_dat = pudata,
 		n_eff_prop = n_eff_prop,
 		nhyperparam = 3, # The number of py values to scan. Log spaced between 1e-3 and 0.5
 		nfolds = 4,      # The number of cross-validation folds
-		nCores = 1,      # The number of cores to use for CV.  
+		nCores = 10,      # The number of cores to use for CV.  
                          # Q: nCores > 1 causes this to crash with the error: 
                          # 2 nodes produced errors; first error: object
                          # 'refstate' not found; Calls: v.pudms ... clusterApply 
