@@ -7,7 +7,7 @@ This package offers a streamlined analysis via PUlasso algorithm for
 learning sequence-function relationships using deep mutational scanning
 data sets.
 
-## Installation
+# Installation
 
 Install using **devtools** package:
 
@@ -16,10 +16,9 @@ Install using **devtools** package:
 devtools::install_github("RomeroLab/pudms")
 ```
 
-## Input files
+# Input files
 
-1.  Two protein sequence text files, one for the labeled (sorted) and
-    the other for the unlabeled (unsorted).
+Two protein sequence text files, one for the labeled (positive) and the other for the unlabeled (unselected).
     
       - Text files with one sequence per line
       - (Optional) Can be gzip compressed.
@@ -36,234 +35,99 @@ devtools::install_github("RomeroLab/pudms")
     ...
     ```
 
-2.  The prevalence of the positive sequences in the unlabeled set (py1).
-    If unknown, `pudms` package searches over a grid of py1 values and
-    picks the best one based on the predictive performance on the test
-    set.
 
 -----
 
-# Examples
+# Example
 
-## Model fitting with a full data set and a py1 value
-
-Here we demonstrate basic usage of the package using sample labeled and
-unlabeled sequences.
-
-**Inputs:**
-
-  - path\_l and path\_u (file paths (in strings) for the labeled and
-    unlabeled sets)
-  - py1
-
-Here we use the paths (path\_l and path\_u) where the sample text files
-are saved in the package. Please replace them with the actual file paths
-(e.g. `path_l = your dir/filename.txt"`).
+This example script (Link to fit_PU_model.R) demonstrates basic usage of the package using sample labeled and unlabeled sequences.
 
 ``` r
+# Run this script on the group server using the command
+# R --vanilla --no-save < fit_PU_model.R
+
+# LOAD THE PUDMS LIBRARY
 library(pudms)
-# paths for the example txt.gz files
-path_l = "inst/extdata/Rocker_sel_sequences_filtered.txt.gz"
-path_u = "inst/extdata/Rocker_ref_sequences_filtered.txt.gz"
 
-# py1 
-protein_py1 = 0.002 # change this to the prevalence of positive examples in your unlabeled set
+
+# SET THE POSITIVE AND UNLABELED SEQUENCE FILES (can be gzipped)
+pos_file = 'Rocker_sel_sequences_filtered.txt'
+unlab_file = 'Rocker_ref_sequences_filtered.txt'
+
+
+# VARIOUS RUN OPTIONS 
+py = NULL         # Proportion of positive sequences in unlabeled set (i.e. fraction functional).  NULL scans a range of possible py values between 1e-3 and 0.5
+order = 1         # Model order: 1 for main effects or 2 for pairwise
+refstate = NULL   # Reference state for regression.  NULL chooses the most common residue at each position (preferable for DMS data).  In contrast, chimera data should use a fixed reference (e.g. 'A')
+nobs_thresh = 10  # Filters out columns in X that sum to less than nobs_thresh
+n_eff_prop = 1    # Scales the p-values to account for redundant sequence sampling at the NGS step. See more in note below.
+
+
+# OUTPUT FILES
+outroc = 'Rocker_CV_ROC.png'
+outcsv = 'Rocker_parameters.csv'
+
+
+# CREATE A PROTEIN DATA SET
+pudata = create_protein_dat(path_l = pos_file, path_u = unlab_file) 
+
+
+# PERFORM CROSS-VALIDATED FITTING OF PU MODEL
+cvfit = v.pudms(protein_dat = pudata,
+                py1 = py,
+		order = order,
+		refstate = refstate,
+		nobs_thresh = nobs_thresh,
+		n_eff_prop = n_eff_prop,
+		nhyperparam = 3, # The number of py values to scan. Log spaced between 1e-3 and 0.5
+		nfolds = 4,      # The number of cross-validation folds
+		nCores = 1,      # The number of cores to use for CV.  Q: nCores > 1 causes this to crash with the error: 2 nodes produced errors; first error: object 'refstate' not found; Calls: v.pudms ... clusterApply -> staticClusterApply -> checkForRemoteErrors
+		full.fit = FALSE) # Q: Hyebin going to make this default 
+
+
+# PLOT THE PU-CORRECTED ROC CURVE FOR THE CV FIT
+rocplot = with(cvfit, rocplot(roc_curve = roc_curves[[which(py1 == py1.opt)]], py1 = py1.opt))
+ggsave(filename = outroc, plot = rocplot)
+
+
+# REFIT ALL THE DATA WITH THE OPTIMAL PY VALUE AND WRITE MODEL PARAMETERS/PVALUES TO CSV
+optpy = cvfit$py1.opt
+cat("The optimal py value is", optpy, "\nRefitting model on all the data with this py value\n")
+fit = pudms(protein_dat = pudata, 
+            py1 = optpy,
+	    order = order,
+	    refstate = refstate,
+	    nobs_thresh = nobs_thresh,
+	    n_eff_prop = n_eff_prop,
+	    outfile = outcsv) # Q: this does not return group pvalues
+
 ```
 
-  - `Rocker_sel_sequences_filtered.txt.gz` contains 703030 sequences of
-    length 27.
-  - `Rocker_ref_sequences_filtered.txt.gz` contains 1287155 sequences of
-    length 27.
 
-**1. We generate a protein dataset from the txtfiles with specified
-paths:**
 
-``` r
-rocker = create_protein_dat(path_l = path_l, path_u = path_u) 
-# will not run unless path_l and path_u are correctly specified with local paths for those files
+
+# Run
+Run the edited script on your data. This will save a csv file with the output in your working directory. 
+```shell
+R --vanilla --no-save < fit_model_roc.R
 ```
 
-> This dataset is also contained in `pudms` package, and can be loaded
-> via:
-> 
-> ``` r
-> data("rocker")
-> ```
-> 
-> The help page for this dataset is available via `help("rocker")`.
+## Output 
 
-**2. Now, we fit a model:**
+This example's curve looks like 
+![ROC curve](roc_curve.png)
 
-``` r
-fit1 = pudms(protein_dat = rocker, py1 = protein_py1) 
-#>  1. create model frames from an aggregated dataset:
-#> create a sequence matrix
-#> check number of unique factors in each position
-#> obtain ``reference`` amino-acid states
-#> convert to the sparse one-hot-encoding model matrix
-#> check whether a filtered X is a full rank matrix
-#> filtered X is a full rank matrix
-#> 
-#> 
-#>  2. fit a model
-#> Fitting 0th lambda
-#> converged at 24th iterations
-#> 
-#> 
-#>  3. compute p-values
-```
 
-(pudms is a wrapper function which sequentially calls
-`create_model_frame`,`filter_mut_less_than_thresh`, `grpPUlasso`, and
-`pval_pu` functions.)
 
-A brief explanation for each function:
+The first few rows of the results look like
 
-  - `create_model_frame`: create a model frame–including a design matrix
-    \(X\) and a response \(z\)–from an imported data set via
-    `create_protein_dat` function.
-  - `filter_mut_less_than_thresh`: filter out mutations with number of
-    mutations \(<=\) nobs\_thresh. The default value of nobs\_thresh is
-    10.
-  - `grpPUlasso`: fit a dataset using PUlasso algorithm.
-  - `pval_pu`: obtain p-values of the parameter estimate based on the
-    asymptotic distribution.
+|    |coef              |se               |zvalue            |p                 |p.adj            |nobs|
+|------|------------------|-----------------|------------------|------------------|-----------------|----|
+|S1.P  |-1.37592271951636 |0.737876703960768|-1.86470546113016 |0.0622227008752244|0.292995889618509|12  |
+|I3.M  |0.0150377890146403|0.72996792761058 |0.0206006160624945|0.98356424902434  |0.991380653652348|13  |
+|I3.V  |0.857480027936806 |0.966663090177415|0.887051586690281 |0.375051127465389 |0.691074837775208|16  |
+|S4.P  |-0.566703453924022|0.759689634851526|-0.745967073823218|0.455687305312763 |0.74104242419004 |10  |
+|L5.P  |0.275912251075667 |0.748047109029646|0.368843416069846 |0.71224444142229  |0.884792247202554|15  |
 
-**3. Done\!**
-
-To view the result in R:
-
-``` r
-View(fit1$result_table)
-```
-
-If a user wants to save the result table at the end, specify the outfile
-option in `pudms` function.
-
-``` r
-fit1 = pudms(protein_dat = rocker,
-             py1 = protein_py1,
-             outfile = 'result.csv') 
-```
-
-Or, the result table can be saved after, with the `write.csv` function.
-
-``` r
-write.csv(x = fit1$result_table, file= 'results.csv')
-```
-
-**4. (Optional) additional arguments in `pudms` function**
-
-  - If there are more sequencing reads than sequence characterizations
-    (for enzyme functionality), this can inflate the significance of
-    p-values. A user can specify the proportion of an effective sample
-    size via:
-
-<!-- end list -->
-
-``` r
-fit1 = pudms(protein_dat = rocker,
-             py1 = protein_py1,
-             n_eff_prop = 0.9) 
-```
-
-  - If the reference state at each position is desired to be fixed by a
-    given (amino-acid) letter, e.g. Y,
-
-<!-- end list -->
-
-``` r
-fit1 = pudms(protein_dat = rocker,
-             py1 = protein_py1,
-             refstate = 'Y') 
-```
-
-Caveat: the specified letter has to be present in **all** positions.
-
-  - Many function default values can be altered by users. For more
-    details, run `help(pudms)`.
-
-## Model fitting with a hyperparameter py1 search
-
-If py1 value for the data is unavailable, `pudms` packages provides an
-implementation of searching over a grid of py1 values and selects the
-best one based on the predictive performance on test data sets.
-
-``` r
-# this takes about 10 minutes to run
-# excecuted using 10 threads (the default is nCores = 1; no parallel execution)
-vfit = v.pudms(protein_dat = rocker, nCores = 10)
-#> creating a parallel environment...
-#> fitting with a fold 1 ...
-#> fitting with a fold 2 ...
-#> fitting with a fold 3 ...
-#> fitting with a fold 4 ...
-#> fitting with a fold 5 ...
-#> obtaining an average ROC curve for each py1...
-#> choosing an optimal py1 value...
-#> fitting with a full dataset...
-```
-
-The workflow is:
-
-1.  create a grid of `py1` values (of length `nhyperparam`) from 1e-3 to
-    0.5 interpolated in a log scale. The default value for `nhyperparam`
-    is 10.
-2.  split datasets into `nfolds` subsamples. The default of `nfolds` is
-    5 (80/20 splits).
-3.  do `nfolds` cross-validations, i.e. fit a model at each `py1` value
-    using `nfolds-1` subsamples and obtain an roc curve from the
-    remaining subsample, for each combination of training/testing
-    splits.
-      - the number of fittngs : `nfolds` x `nhyperparam`
-4.  obtain an average roc curve (at each `py1` value) from `nfolds` roc
-    curves from the step 3, choose the best py1 value based average auc
-    values.
-5.  fit the full data set using the selected `py1` value from step 4.
-
-To save the result at the
-end,
-
-``` r
-vfit = v.pudms(protein_dat = rocker, nCores = 10, outfile = 'result.csv', seed =1234) # seed for reproducibility
-```
-
-To obtain an average PU-adjusted roc curve at the selected `py1` value,
-we can run
-
-``` r
-plot(vfit)
-```
-
-![](README-roc_curve-1.png)<!-- -->
-
-To save a
-plot:
-
-``` r
-rocplot = with(vfit, rocplot(roc_curve = roc_curves[[which(py1 == py1.opt)]], py1 = py1.opt))
-ggsave(filename = "roc.png", plot = rocplot, path = "your path to save")
-```
-
-## Model fitting with a training and test set
-
-Here, we will use 90% of the data to train a model and obtain an ROC
-curve with remaining 10% of the data with a given `py1` value. We can
-run the same `v.pudms` function as follows:
-
-``` r
-vfit2 = v.pudms(protein_dat = rocker,
-                py1 = vfit$py1.opt, # py1 value selected from the previous result
-                nfolds = 10, # create 10 subsamples
-                test_idx = 1, # fitting using a fold 1
-                seed = 1234) # seed for reproducibility
-#> fitting with a fold 1 ...
-```
-
-We can obtain a PU-adjusted ROC curve similarily as before:
-
-``` r
-rocplot(roc_curve = vfit2$roc_curves[[1]], py1 = vfit$py1.opt)
-```
-
-![](README-roc_curve2-1.png)<!-- -->
+The entire example results are available [here](./results.csv). 
+ 
