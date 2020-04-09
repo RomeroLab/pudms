@@ -127,7 +127,7 @@ R --vanilla --no-save < fit_PU_model.R
 ## Output 
 
 This example's curve looks like 
-![ROC curve](./inst/quickexample/Rocker_CV_ROC.png)
+<img align="right" src="inst/quickexample/Rocker_CV_ROC.png" width="400" title="CV ROC " />
 
 The first few rows of the results look like
 
