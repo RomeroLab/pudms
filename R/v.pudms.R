@@ -61,7 +61,8 @@ v.pudms = function(protein_dat,
     if(verbose) cat("creating a parallel environment...\n")
     isParallel = TRUE
     nCores = min(nCores,detectCores())
-    cl <- makeCluster(nCores)
+    clustertype = ifelse(.Platform$OS.type=="windows", 'PSOCK', 'FORK') 
+    cl <- makeCluster(nCores,type = clustertype)
     
     # export libPaths to the cluster
     invisible(clusterCall(cl, function(x) .libPaths(x), .libPaths()))
