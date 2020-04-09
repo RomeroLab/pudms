@@ -147,7 +147,7 @@ v.pudms = function(protein_dat,
   
   for(i in 1:length(test_idx)){
     if(verbose) cat("fitting with a fold",i,"...\n")
-    v.dmsfit[[i]] = pblapply(X = 1:length(py1), i=i, v1.varlist = v1.varlist,cl = cl, FUN =v.1round)
+    v.dmsfit[[i]] = pblapply(X = 1:length(py1), i=i, varlist = v1.varlist,cl = cl, FUN =v.1round)
   }
   
   # assign names to v.dmsfit 
