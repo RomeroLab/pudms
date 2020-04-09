@@ -109,7 +109,8 @@ pudms <- function (protein_dat,
       nobs = nobs,
       n_eff_prop = n_eff_prop,
       p.adjust.method = p.adjust.method,
-      nCores = nCores
+      nCores = nCores,
+      verbose = verbose
     )
     
   }else{

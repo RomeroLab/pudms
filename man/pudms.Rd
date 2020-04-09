@@ -14,14 +14,15 @@ pudms(
   lambda = 0,
   nlambda = 10,
   pvalue = T,
-  n_eff_prop = NULL,
+  n_eff_prop = 1,
   intercept = F,
   maxit = 1000,
   eps = 0.001,
   inner_eps = 0.01,
   initial_coef = NULL,
   p.adjust.method = "BH",
-  outfile = NULL
+  outfile = NULL,
+  nCores = 1
 )
 }
 \arguments{
@@ -58,6 +59,8 @@ pudms(
 \item{p.adjust.method}{method for multiple comparison}
 
 \item{outfile}{NULL or a string; if a string is provided, an output with the name of the string will be exported in a working directory.}
+
+\item{nCores}{the number of threads for computing.}
 }
 \value{
 a list containing a fit (from grpPUlasso), result_table (data.frame), and nobs

@@ -2,11 +2,12 @@
 % Please edit documentation in R/filter_mut_less_than_thresh.R
 \name{filter_mut_less_than_thresh}
 \alias{filter_mut_less_than_thresh}
-\title{Delete columns such that colSums <= thresh, and rows which contain a mutation into the deleted columns}
+\title{Delete columns such that colSums <= nobs_thresh, and rows which contain a mutation into the deleted columns}
 \usage{
 filter_mut_less_than_thresh(
   Xprotein,
-  thresh = 10,
+  order = 1,
+  nobs_thresh = 10,
   checkResFullRank = T,
   verbose = T
 )
@@ -14,7 +15,9 @@ filter_mut_less_than_thresh(
 \arguments{
 \item{Xprotein}{list (X,z,wei, seqId, blockId)}
 
-\item{thresh}{an integer threshold}
+\item{order}{an integer; 1= main effects, 2= main effects + pairwise effects}
+
+\item{nobs_thresh}{an integer threshold}
 
 \item{checkResFullRank}{a logical value}
 
@@ -24,5 +27,5 @@ filter_mut_less_than_thresh(
 a list (X,z,wei, seqId, blockId)
 }
 \description{
-Delete columns such that colSums <= thresh, and rows which contain a mutation into the deleted columns
+Delete columns such that colSums <= nobs_thresh, and rows which contain a mutation into the deleted columns
 }

@@ -22,14 +22,14 @@ rocplot = function(roc_curve,py1){
     geom_path(size=1.5,color="grey40")+
     geom_path(aes(.data$fpr,.data$tpr),linetype="solid",color="black",size=1.5)+
     geom_abline(slope = 1, linetype="dashed",color="darkblue",size=1.5)+
-    theme_classic(base_size = 20)+
+    theme_classic(base_size = 15)+
     xlab("false-positive rate")+
     ylab("true-positive rate")+
     scale_x_continuous(expand=c(0,0)) +
     #custom breaks on y-axis
     scale_y_continuous(expand=c(0,0))+
-    annotate("text",label=paste("auc (corrected): ",round(auc,3),sep=""), x=0.65,y=0.1,size=6)+
-    theme(aspect.ratio = 1)+
+    annotate("text",label=paste("auc (corrected): ",round(auc,3),sep=""), x=0.75,y=0.1,size=5)+
+    theme(aspect.ratio = 1,plot.margin = unit(c(1,1,1,1), "cm"))+
     coord_fixed()
   
 }

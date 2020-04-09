@@ -25,6 +25,7 @@
 #'@param tol a numeric value; if the roc estimated curve <= y+tol, the estimated roc curve is determined to be contained by the maximal curve.
 #'@param nCores the number of threads for computing.
 #'@param full.fit a logical value; if TRUE, the model will be fitted using a full data set and at a chosen py1.
+#'@param full.fit.pvalue a logical value; if TRUE, p-values for the full fit will be returned
 #'@param outfile NULL or a string; if a string is provided, an output with the name of the string will be exported in a working directory. 
 #'@importFrom stats runif
 #'@return a list containing v.dmsfit (all fits using training/test splits), roc_curves (average roc curve at each py1), dmsfit (pudms.fit using a full data set at the selected py1),  folds (test/training split information), py1 (a sequence of py1 values used for searching), py1.opt (the selected py1 value based on the predictive performance of the models)

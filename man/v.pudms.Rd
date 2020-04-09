@@ -17,7 +17,7 @@ v.pudms(
   nobs_thresh = 10,
   lambda = 0,
   pvalue = FALSE,
-  n_eff_prop = NULL,
+  n_eff_prop = 1,
   intercept = F,
   maxit = 1000,
   eps = 0.001,
@@ -27,7 +27,8 @@ v.pudms(
   is.smooth.roc = TRUE,
   tol = 1e-05,
   nCores = 1,
-  full.fit = TRUE,
+  full.fit = FALSE,
+  full.fit.pvalue = FALSE,
   outfile = NULL
 )
 }
@@ -77,6 +78,8 @@ v.pudms(
 \item{nCores}{the number of threads for computing.}
 
 \item{full.fit}{a logical value; if TRUE, the model will be fitted using a full data set and at a chosen py1.}
+
+\item{full.fit.pvalue}{a logical value; if TRUE, p-values for the full fit will be returned}
 
 \item{outfile}{NULL or a string; if a string is provided, an output with the name of the string will be exported in a working directory.}
 }

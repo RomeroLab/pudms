@@ -1,5 +1,6 @@
 #'@import doParallel
-return_tables <- function(Xprotein, fit, pvalues, nobs, n_eff_prop, p.adjust.method, nCores){
+#'@importFrom stats pchisq
+return_tables <- function(Xprotein, fit, pvalues, nobs, n_eff_prop, p.adjust.method, nCores, verbose){
   
   if(nCores>1){
     if(verbose) cat("creating a parallel environment...\n")
@@ -28,6 +29,8 @@ return_tables <- function(Xprotein, fit, pvalues, nobs, n_eff_prop, p.adjust.met
                      eff_nobs = n_eff_prop*nobs)
   
   block  = c(0, Xprotein$blockidx) # to include intercept
+  
+  i=1;
   dat.g = foreach(i=1:length(unique(block)),
                   .combine = "rbind",
                   .packages = c("Matrix"))%dopar%{
