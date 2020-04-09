@@ -38,14 +38,9 @@ cvfit = v.pudms(protein_dat = pudata,
 		refstate = refstate,
 		nobs_thresh = nobs_thresh,
 		n_eff_prop = n_eff_prop,
-		nhyperparam = 3, # The number of py values to scan. Log spaced between 1e-3 and 0.5
-		nfolds = 4,      # The number of cross-validation folds
-		nCores = 10,      # The number of cores to use for CV.  
-                         # Q: nCores > 1 causes this to crash with the error: 
-                         # 2 nodes produced errors; first error: object
-                         # 'refstate' not found; Calls: v.pudms ... clusterApply 
-                         # -> staticClusterApply -> checkForRemoteErrors
-		full.fit = FALSE) # Q: TODO: going to make this default 
+		nhyperparam = 10, # The number of py values to scan. Log spaced between 1e-3 and 0.5
+		nfolds = 5,       # The number of cross-validation folds
+		nCores = 10)      # The number of threads to use for CV.  
 
 
 # PLOT THE PU-CORRECTED ROC CURVE FOR THE CV FIT
@@ -62,6 +57,6 @@ fit = pudms(protein_dat = pudata,
 	    refstate = refstate,
 	    nobs_thresh = nobs_thresh,
 	    n_eff_prop = n_eff_prop,
-	    outfile = outcsv) # Q: this does not return group pvalues
+	    outfile = outcsv) 
 
 
