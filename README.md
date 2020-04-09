@@ -1,22 +1,25 @@
 positive-unlabeled learning for dms datasets (pudms)
 ================
 
-# Description
+## Description
 
 This package offers a streamlined analysis via PUlasso algorithm for
 learning sequence-function relationships using deep mutational scanning
 data sets.
 
-# Installation
+## Installation
 
-Install using **devtools** package:
+This step is only needed once on a computer where the `pudms` package has not
+been installed before. Start the `R` interpreter and run the lines below to
+install from Github using the the **devtools** package:
 
-``` r
-# install.packages("devtools")
+```r
+if(!require(devtools)) install.packages("devtools")
 devtools::install_github("RomeroLab/pudms")
+quit(save="no")
 ```
 
-# Input files
+## Input files
 
 Two protein sequence text files, one for the labeled (positive) and the other for the unlabeled (unselected).
     
@@ -24,7 +27,6 @@ Two protein sequence text files, one for the labeled (positive) and the other fo
       - (Optional) Can be gzip compressed.
       - Example
     
-    <!-- end list -->
     
     ``` console
     MYYKEIAHALFSDLFALSELYIAVRY*
@@ -38,29 +40,37 @@ Two protein sequence text files, one for the labeled (positive) and the other fo
 
 -----
 
-# Example
+## Example
 
-This example script (Link to fit_PU_model.R) demonstrates basic usage of the package using sample labeled and unlabeled sequences.
+To setup this example copy all the following files in the [quickexample
+directory](./inst/quickexample) to your working directory. 
+
+This [example script](./inst/quickexample/fit_PU_model.R) demonstrates basic
+usage of the package using sample labeled and unlabeled sequences.
 
 ``` r
-# Run this script on the group server using the command
+# Run this script from the command line 
 # R --vanilla --no-save < fit_PU_model.R
 
 # LOAD THE PUDMS LIBRARY
 library(pudms)
 
 
-# SET THE POSITIVE AND UNLABELED SEQUENCE FILES (can be gzipped)
-pos_file = 'Rocker_sel_sequences_filtered.txt'
-unlab_file = 'Rocker_ref_sequences_filtered.txt'
+# SET THE POSITIVE AND UNLABELED SEQUENCE FILES (can be gzipped or not)
+pos_file = 'Rocker_sel_sequences_filtered.txt.gz'
+unlab_file = 'Rocker_ref_sequences_filtered.txt.gz'
 
 
 # VARIOUS RUN OPTIONS 
-py = NULL         # Proportion of positive sequences in unlabeled set (i.e. fraction functional).  NULL scans a range of possible py values between 1e-3 and 0.5
+py = NULL         # Proportion of positive sequences in unlabeled set (i.e. fraction functional).
+                  # NULL scans a range of possible py values between 1e-3 and 0.5
 order = 1         # Model order: 1 for main effects or 2 for pairwise
-refstate = NULL   # Reference state for regression.  NULL chooses the most common residue at each position (preferable for DMS data).  In contrast, chimera data should use a fixed reference (e.g. 'A')
+refstate = NULL   # Reference state for regression.  
+                  # NULL chooses the most common residue at each position (preferable for DMS data).  
+                  # In contrast, chimera data should use a fixed reference (e.g. 'A')
 nobs_thresh = 10  # Filters out columns in X that sum to less than nobs_thresh
-n_eff_prop = 1    # Scales the p-values to account for redundant sequence sampling at the NGS step. See more in note below.
+n_eff_prop = 1    # Scales the p-values to account for redundant sequence sampling at the NGS step. 
+                  # See more in note below.
 
 
 # OUTPUT FILES
@@ -81,8 +91,12 @@ cvfit = v.pudms(protein_dat = pudata,
 		n_eff_prop = n_eff_prop,
 		nhyperparam = 3, # The number of py values to scan. Log spaced between 1e-3 and 0.5
 		nfolds = 4,      # The number of cross-validation folds
-		nCores = 1,      # The number of cores to use for CV.  Q: nCores > 1 causes this to crash with the error: 2 nodes produced errors; first error: object 'refstate' not found; Calls: v.pudms ... clusterApply -> staticClusterApply -> checkForRemoteErrors
-		full.fit = FALSE) # Q: Hyebin going to make this default 
+		nCores = 1,      # The number of cores to use for CV.  
+                         # Q: nCores > 1 causes this to crash with the error: 
+                         # 2 nodes produced errors; first error: object
+                         # 'refstate' not found; Calls: v.pudms ... clusterApply 
+                         # -> staticClusterApply -> checkForRemoteErrors
+		full.fit = FALSE) # Q: TODO: going to make this default 
 
 
 # PLOT THE PU-CORRECTED ROC CURVE FOR THE CV FIT
@@ -104,30 +118,27 @@ fit = pudms(protein_dat = pudata,
 ```
 
 
-
-
-# Run
+### Run example
 Run the edited script on your data. This will save a csv file with the output in your working directory. 
 ```shell
-R --vanilla --no-save < fit_model_roc.R
+R --vanilla --no-save < fit_PU_model.R
 ```
 
 ## Output 
 
 This example's curve looks like 
-![ROC curve](roc_curve.png)
-
-
+![ROC curve](./inst/quickexample/Rocker_CV_ROC.png)
 
 The first few rows of the results look like
 
-|    |coef              |se               |zvalue            |p                 |p.adj            |nobs|
-|------|------------------|-----------------|------------------|------------------|-----------------|----|
-|S1.P  |-1.37592271951636 |0.737876703960768|-1.86470546113016 |0.0622227008752244|0.292995889618509|12  |
-|I3.M  |0.0150377890146403|0.72996792761058 |0.0206006160624945|0.98356424902434  |0.991380653652348|13  |
-|I3.V  |0.857480027936806 |0.966663090177415|0.887051586690281 |0.375051127465389 |0.691074837775208|16  |
-|S4.P  |-0.566703453924022|0.759689634851526|-0.745967073823218|0.455687305312763 |0.74104242419004 |10  |
-|L5.P  |0.275912251075667 |0.748047109029646|0.368843416069846 |0.71224444142229  |0.884792247202554|15  |
+|  |coef              |se                |zvalue           |p                   |p.adj               |nobs|eff\_nobs|
+|------|------------------|------------------|-----------------|--------------------|--------------------|----|--------|
+|Y0.\*  |2.14324437523187  |0.0313069448762633|68.4590714201838 |0                   |0                   |7550|7550    |
+|Y0.A  |-0.083107113588467|0.0262392010433295|-3.16728826656079|0.00153867711789975 |0.00172486407508853 |8129|8129    |
+|Y0.C  |-1.40721227424033 |0.0902017334163601|-15.6007231894848|7.19741611572199e-55|1.47863234846004e-54|1507|1507    |
+|Y0.D  |-2.29631459525582 |0.136816375754836 |-16.7839162716211|3.20017925285385e-63|7.37693902887907e-63|1327|1327    |
+|Y0.E  |-1.87447836155712 |0.186862606005878 |-10.0313187406696|1.11023732312351e-23|1.57551018975041e-23|520 |520     |
 
-The entire example results are available [here](./results.csv). 
+
+The entire example results are available [here](./inst/quickexample/Rocker_parameters.csv)
  
