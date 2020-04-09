@@ -41,7 +41,7 @@ v.pudms = function(protein_dat,
                    nobs_thresh=10,
                    lambda = 0,
                    pvalue = FALSE,
-                   n_eff_prop = NULL,
+                   n_eff_prop = 1,
                    intercept = F,
                    maxit = 1000,
                    eps = 1e-3,
@@ -51,7 +51,8 @@ v.pudms = function(protein_dat,
                    is.smooth.roc = TRUE,
                    tol = 1e-5,
                    nCores =1,
-                   full.fit = TRUE,
+                   full.fit = FALSE,
+                   full.fit.pvalue = FALSE,
                    outfile = NULL) {
   
   # if nCores>1, set up a parallel environment
@@ -60,6 +61,7 @@ v.pudms = function(protein_dat,
     isParallel = TRUE
     nCores = min(nCores,detectCores())
     cl <- makeCluster(nCores)
+    
     # export libPaths to the cluster
     invisible(clusterCall(cl, function(x) .libPaths(x), .libPaths()))
     # export libraries to the cluster
@@ -95,38 +97,38 @@ v.pudms = function(protein_dat,
   
   # i: a running index for 1,,,test_idx
   # j: a running index for hyperparam 1,..., nhyperparam
+  
   v.dmsfit = list() # list of length length(text_idx); each list contains length(py1) lists
+  
+  v.1round = function(x,i){
+    dmsfit = pudms(protein_dat = cv.datasets[[i]]$train_grouped_dat,
+                   py1 = py1[x],
+                   order = order, 
+                   refstate = refstate,
+                   verbose= FALSE,
+                   nobs_thresh=nobs_thresh,
+                   lambda=lambda,
+                   pvalue = pvalue,
+                   n_eff_prop = n_eff_prop,
+                   intercept = intercept,
+                   maxit=maxit,
+                   eps = eps,
+                   inner_eps = inner_eps,
+                   initial_coef = initial_coef,
+                   p.adjust.method = p.adjust.method)
+    
+    roc = adjusted_roc_curve(coef = coef(dmsfit$fit),
+                             test_grouped_dat = cv.datasets[[i]]$test_grouped_dat,
+                             verbose = F,
+                             py1 = py1[x],
+                             plot = F)
+    
+    list(train_fit=dmsfit,test_roc = roc,py1 = py1[x]) 
+  }
+  
   for(i in 1:length(test_idx)){
     if(verbose) cat("fitting with a fold",i,"...\n")
-    v.dmsfit[[i]] = 
-      pblapply(X = 1:length(py1), i=i, cl = cl,
-               FUN = function(x,i) {
-                 
-                 dmsfit = pudms(protein_dat = cv.datasets[[i]]$train_grouped_dat,
-                                py1 = py1[x],
-                                order = order, 
-                                refstate = refstate,
-                                verbose= FALSE,
-                                nobs_thresh=nobs_thresh,
-                                lambda=lambda,
-                                pvalue = pvalue,
-                                n_eff_prop = n_eff_prop,
-                                intercept = intercept,
-                                maxit=maxit,
-                                eps = eps,
-                                inner_eps = inner_eps,
-                                initial_coef = initial_coef,
-                                p.adjust.method = p.adjust.method)
-                 
-                 roc = adjusted_roc_curve(coef = coef(dmsfit$fit),
-                                          test_grouped_dat = cv.datasets[[i]]$test_grouped_dat,
-                                          verbose = F,
-                                          py1 = py1[x],
-                                          plot = F)
-                 
-                 list(train_fit=dmsfit,test_roc = roc,py1 = py1[x]) # length(py1), length(py1), length 1
-                 
-               })
+    v.dmsfit[[i]] = pblapply(X = 1:length(py1), i=i, cl = cl, FUN =v.1round)
   }
   
   # assign names to v.dmsfit 
@@ -163,7 +165,7 @@ v.pudms = function(protein_dat,
                    verbose= FALSE,
                    nobs_thresh=nobs_thresh,
                    lambda=lambda,
-                   pvalue = pvalue,
+                   pvalue = full.fit.pvalue,
                    n_eff_prop = n_eff_prop,
                    intercept = intercept,
                    maxit=maxit,
@@ -175,7 +177,7 @@ v.pudms = function(protein_dat,
   } else{
     dmsfit = NULL
   }
-  
+  if(isParallel) on.exit(stopCluster(cl))
   
   structure(list(v.dmsfit = v.dmsfit, 
                  roc_curves = roc_curves,
