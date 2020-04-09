@@ -17,6 +17,7 @@
 #'@param p.adjust.method method for multiple comparison
 #'@param initial_coef a vector representing an initial point where we start PUlasso algorithm from.
 #'@param outfile NULL or a string; if a string is provided, an output with the name of the string will be exported in a working directory. 
+#'@param nCores the number of threads for computing.
 #'@return a list containing a fit (from grpPUlasso), result_table (data.frame), and nobs
 #'@import PUlasso
 #'@importFrom stats p.adjust
@@ -31,14 +32,15 @@ pudms <- function (protein_dat,
                    lambda=0,
                    nlambda = 10,
                    pvalue = T,
-                   n_eff_prop = NULL,
+                   n_eff_prop = 1,
                    intercept = F,
                    maxit=1000,
                    eps = 1e-3,
                    inner_eps = 0.01,
                    initial_coef = NULL,
                    p.adjust.method = "BH",
-                   outfile = NULL){
+                   outfile = NULL,
+                   nCores = 1){
 
   if(verbose) cat(" 1. create model frames from an aggregated dataset:\n")
   Xprotein = create_model_frame(grouped_dat = protein_dat,
@@ -50,10 +52,14 @@ pudms <- function (protein_dat,
   # remove sequences which contain a feature whose number of mutations < nobs_thresh
   # at the end, the function checks whether filtered X matrix is of full rank. 
   # If X is not of full rank, function throws a warning
-  filtered_Xprotein = filter_mut_less_than_thresh(Xprotein,
-                                                  thresh = nobs_thresh,
+  filtered_Xprotein = filter_mut_less_than_thresh(Xprotein = Xprotein,
+                                                  order = order,
+                                                  nobs_thresh = nobs_thresh,
                                                   checkResFullRank = T,
                                                   verbose = verbose)
+  
+  # if X is not a column full rank matrix, we do not calculate p-values
+  if(!filtered_Xprotein$fullrank) pvalue = FALSE
   
   if(verbose) cat("\n\n 2. fit a model\n")
   fit = grpPUlasso(X = filtered_Xprotein$X,
@@ -74,7 +80,6 @@ pudms <- function (protein_dat,
     if(verbose) cat("\n\n 3. compute p-values\n")
     if(lambda>0){stop("currently p-value computation is supported only for lambda == 0")}
     
-    if(is.null(n_eff_prop)){n_eff_prop = 1}
     if(n_eff_prop>1 || n_eff_prop <= 0){stop ("n_eff_prop should be between 0 and 1")}
     
     pvalues <-
@@ -95,16 +100,19 @@ pudms <- function (protein_dat,
   nobs = c(0,colSums(Diagonal(x=filtered_Xprotein$wei)%*%filtered_Xprotein$X))
   
   # summary 
+  if(verbose) cat("\n\n 4. summarizing results\n")
   if(pvalue){
-    dat = data.frame(coef= as.numeric(fit$coef),
-                     se = pvalues$se, 
-                     zvalue = pvalues$zvalue, 
-                     p = pvalues$pvalue,
-                     p.adj = p.adjust(pvalues$pvalue, method = p.adjust.method),
-                     nobs = nobs,
-                     eff_nobs = n_eff_prop*nobs)
+    dat = return_tables(
+      Xprotein = filtered_Xprotein,
+      fit = fit,
+      pvalues = pvalues,
+      nobs = nobs,
+      n_eff_prop = n_eff_prop,
+      p.adjust.method = p.adjust.method,
+      nCores = nCores
+    )
+    
   }else{
-    n_eff_prop = 1
     if(dim(fit$coef)[2]==1){
       dat = data.frame(coef= as.numeric(fit$coef),
                      nobs = nobs,
@@ -123,6 +131,7 @@ pudms <- function (protein_dat,
   if(!is.null(outfile)) {
     cat("saving results as",outfile,"...\n")
     write.csv(res$result_table, file= outfile)}
+  
   return(res)
 }
 
