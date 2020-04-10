@@ -51,7 +51,6 @@ usage of the package using sample labeled and unlabeled sequences.
 ``` r
 # Run this script from the command line 
 # R --vanilla --no-save < fit_PU_model.R
-remove(list=ls())
 # LOAD THE PUDMS LIBRARY
 library(pudms)
 
