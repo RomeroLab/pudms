@@ -51,7 +51,7 @@ usage of the package using sample labeled and unlabeled sequences.
 ``` r
 # Run this script from the command line 
 # R --vanilla --no-save < fit_PU_model.R
-
+remove(list=ls())
 # LOAD THE PUDMS LIBRARY
 library(pudms)
 
@@ -89,14 +89,9 @@ cvfit = v.pudms(protein_dat = pudata,
 		refstate = refstate,
 		nobs_thresh = nobs_thresh,
 		n_eff_prop = n_eff_prop,
-		nhyperparam = 3, # The number of py values to scan. Log spaced between 1e-3 and 0.5
-		nfolds = 4,      # The number of cross-validation folds
-		nCores = 1,      # The number of cores to use for CV.  
-                         # Q: nCores > 1 causes this to crash with the error: 
-                         # 2 nodes produced errors; first error: object
-                         # 'refstate' not found; Calls: v.pudms ... clusterApply 
-                         # -> staticClusterApply -> checkForRemoteErrors
-		full.fit = FALSE) # Q: TODO: going to make this default 
+		nhyperparam = 10, # The number of py values to scan. Log spaced between 1e-3 and 0.5
+		nfolds = 5,       # The number of cross-validation folds
+		nCores = 10)      # The number of threads to use for CV.  
 
 
 # PLOT THE PU-CORRECTED ROC CURVE FOR THE CV FIT
@@ -113,8 +108,7 @@ fit = pudms(protein_dat = pudata,
 	    refstate = refstate,
 	    nobs_thresh = nobs_thresh,
 	    n_eff_prop = n_eff_prop,
-	    outfile = outcsv) # Q: this does not return group pvalues
-
+	    outfile = outcsv) 
 ```
 
 
@@ -133,11 +127,12 @@ This example's curve looks like
 
 The first few rows of the results look like
 
-|  |coef              |se                |zvalue           |p                   |p.adj               |nobs|eff\_nobs|
-|------|------------------|------------------|-----------------|--------------------|--------------------|----|--------|
-|Y0.\*  |2.14324437523187  |0.0313069448762633|68.4590714201838 |0                   |0                   |7550|7550    |
-|Y0.A  |-0.083107113588467|0.0262392010433295|-3.16728826656079|0.00153867711789975 |0.00172486407508853 |8129|8129    |
-|Y0.C  |-1.40721227424033 |0.0902017334163601|-15.6007231894848|7.19741611572199e-55|1.47863234846004e-54|1507|1507    |
+|   |coef               |se                |zvalue           |p                   |p.adj               |nobs|eff_nobs|sep|group|chi2value       |p.grp|p.grp.adj|dat.g.nobs.grp|
+|------|-------------------|------------------|-----------------|--------------------|--------------------|----|--------|---|-----|----------------|-----|---------|--------------|
+|Y0.*  |2.15471956767264   |0.0315308746734723|68.3368155811251 |0                   |0                   |7550|7550    |*  |0    |1307680.35553662|0    |0        |192550        |
+|Y0.A  |-0.0813983989127809|0.0262583447608329|-3.09990594053725|0.00193582106653184 |0.00216512105618937 |8129|8129    |*  |0    |1307680.35553662|0    |0        |192550        |
+|Y0.C  |-1.40667536321285  |0.0902292785710968|-15.5900100886261|8.51201104105626e-55|1.74870184985716e-54|1507|1507    |*  |0    |1307680.35553662|0    |0        |192550        |
+
 
 
 The entire example results are available [here](./inst/quickexample/Rocker_parameters.csv)
