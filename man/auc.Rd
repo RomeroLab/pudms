@@ -2,7 +2,7 @@
 % Please edit documentation in R/auc.R
 \name{auc}
 \alias{auc}
-\title{Return an adjusted auc value from a fitted model at py1 ==py1[py1idx]}
+\title{Return an adjusted (average) auc value from a fitted model at py1 ==py1[py1idx]}
 \usage{
 auc(vfit, py1idx = NULL)
 }
@@ -12,5 +12,5 @@ auc(vfit, py1idx = NULL)
 \item{py1idx}{an index of py1 for auc to be returned at}
 }
 \description{
-Return an adjusted auc value from a fitted model at py1 ==py1[py1idx]
+Return an adjusted (average) auc value from a fitted model at py1 ==py1[py1idx]
 }

@@ -42,7 +42,7 @@ create_model_frame <- function(grouped_dat, order = 1, aggregate = T, refstate =
     if(verbose){cat("obtain ``reference`` amino-acid states\n")}
     # Obtain "reference" amino-acid states
     # The most frequent state
-    refstates <- pblapply( seqmat, function(x){ tbl = table(x); names(which(tbl == max(tbl))) }) %>% unlist
+    refstates <- pblapply( seqmat, function(x){ tbl = table(x); names(which(tbl == max(tbl)))[1] }) %>% unlist
   }else{
     all_states = Reduce(intersect, lapply(seqmat,levels)) # levels which exist in all columns
     if(!refstate %in% all_states){stop("refstate amino acid does not exist in all positions")}
