@@ -14,8 +14,8 @@ been installed before. Start the `R` interpreter and run the lines below to
 install from Github using the the **devtools** package:
 
 ```r
-if(!require(devtools)) install.packages("devtools")
-devtools::install_github("RomeroLab/pudms")
+if(!require(remotes)) install.packages("remotes")
+remotes::install_github("RomeroLab/pudms")
 quit(save="no")
 ```
 
