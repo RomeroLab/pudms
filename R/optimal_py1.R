@@ -5,7 +5,6 @@
 #'@param roc_curves a list containing roc_curves of length(py1)
 #'@param py1 a sequence of py1
 #'@param tol NULL or a numerical number to specify a margin in determining whether the estimated ROC curve is smaller than the maximal curve. If NULL, 1sd from K-fold ROC curves at each value is used.
-#'@param is.smooth.roc a logical value; if TRUE (default), a smoothed roc curve will be used in checking whether the roc curve is contained by the maximal roc curve at each py1
 #'@param verbose a logical value
 #'@export
 optimal_py1 = function(roc_curves, py1, tol = NULL, verbose=T){

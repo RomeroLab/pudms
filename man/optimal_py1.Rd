@@ -14,8 +14,6 @@ optimal_py1(roc_curves, py1, tol = NULL, verbose = T)
 \item{tol}{NULL or a numerical number to specify a margin in determining whether the estimated ROC curve is smaller than the maximal curve. If NULL, 1sd from K-fold ROC curves at each value is used.}
 
 \item{verbose}{a logical value}
-
-\item{is.smooth.roc}{a logical value; if TRUE (default), a smoothed roc curve will be used in checking whether the roc curve is contained by the maximal roc curve at each py1}
 }
 \description{
 Search for optimal py1 values using roc_curves

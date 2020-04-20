@@ -1,6 +1,6 @@
 #' Average ROC curve
 #'@import foreach 
-#'@importFrom stats approx
+#'@importFrom stats approx sd
 #'@param roc_curves roc_curves which need to be averaged
 #'@export
 roc.average = function(roc_curves){
