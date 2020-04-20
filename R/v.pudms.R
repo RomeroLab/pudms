@@ -21,8 +21,7 @@
 #'@param inner_eps convergence threshold for the inner loop
 #'@param initial_coef a vector representing an initial point where we start PUlasso algorithm from.
 #'@param p.adjust.method method for multiple comparison
-#'@param is.smooth.roc a logical value; if TRUE (default), a smoothed roc curve will be used in checking whether the roc curve is contained by the maximal roc curve at each py1
-#'@param tol a numeric value; if the roc estimated curve <= y+tol, the estimated roc curve is determined to be contained by the maximal curve.
+#'@param tol NULL or a numeric value; if the estimated roc curve <= y+tol, the estimated roc curve is determined to be contained by the maximal curve. The default is NULL, where we use tol =  1sd value of the length(test_idx) roc curves at each x value of the estimated roc curve.
 #'@param nCores the number of threads for computing.
 #'@param full.fit a logical value; if TRUE, the model will be fitted using a full data set and at a chosen py1.
 #'@param full.fit.pvalue a logical value; if TRUE, p-values for the full fit will be returned
@@ -49,7 +48,6 @@ v.pudms = function(protein_dat,
                    inner_eps = 0.01,
                    initial_coef = NULL,
                    p.adjust.method = "BH",
-                   is.smooth.roc = TRUE,
                    tol = 1e-5,
                    nCores =1,
                    full.fit = FALSE,
@@ -171,7 +169,7 @@ v.pudms = function(protein_dat,
   }
   
   if(searchPy1) {
-    py1.opt = optimal_py1(roc_curves = roc_curves,py1 = py1,verbose = verbose,is.smooth.roc = is.smooth.roc,tol = tol)
+    py1.opt = optimal_py1(roc_curves = roc_curves,py1 = py1,verbose = verbose,tol = tol)
   }else{
     py1.opt = NULL
   }

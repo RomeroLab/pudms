@@ -24,7 +24,6 @@ v.pudms(
   inner_eps = 0.01,
   initial_coef = NULL,
   p.adjust.method = "BH",
-  is.smooth.roc = TRUE,
   tol = 1e-05,
   nCores = 1,
   full.fit = FALSE,
@@ -71,9 +70,7 @@ v.pudms(
 
 \item{p.adjust.method}{method for multiple comparison}
 
-\item{is.smooth.roc}{a logical value; if TRUE (default), a smoothed roc curve will be used in checking whether the roc curve is contained by the maximal roc curve at each py1}
-
-\item{tol}{a numeric value; if the roc estimated curve <= y+tol, the estimated roc curve is determined to be contained by the maximal curve.}
+\item{tol}{NULL or a numeric value; if the estimated roc curve <= y+tol, the estimated roc curve is determined to be contained by the maximal curve. The default is NULL, where we use tol =  1sd value of the length(test_idx) roc curves at each x value of the estimated roc curve.}
 
 \item{nCores}{the number of threads for computing.}
 
