@@ -58,6 +58,8 @@ pudms <- function (protein_dat,
                                                   checkResFullRank = T,
                                                   verbose = verbose)
   
+  remove(Xprotein); gc() 
+  
   # if X is not a column full rank matrix, we do not calculate p-values
   if(!filtered_Xprotein$fullrank) pvalue = FALSE
   
