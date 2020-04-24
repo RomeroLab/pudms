@@ -76,7 +76,11 @@ v.pudms = function(protein_dat,
   # train/test data split
   cvfolds = cv_grouped_dat(grouped_dat = protein_dat,test_idx = 1,nfolds = nfolds,seed = seed,return.datasets = F)
   # create training/test datasets for test_idx
-  cv.datasets = lapply(X = 1:length(test_idx),FUN = function(i) {cv_grouped_dat(grouped_dat = protein_dat,test_idx = i,folds = cvfolds$folds)})
+  cv.datasets = lapply(X = 1:length(test_idx),FUN = function(i) {
+    res = cv_grouped_dat(grouped_dat = protein_dat,test_idx = i,folds = cvfolds$folds)
+    res$folds = NULL
+    res
+  })
   
   gc()
   

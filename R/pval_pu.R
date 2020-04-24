@@ -34,5 +34,5 @@ pval_pu <- function(X,z,theta,py1, weights = rep(1,nrow(X)),effective_n_prop = 1
   se = sqrt(diag(ii))
   zvalue = theta/se
   pval = pnorm(abs(zvalue),lower.tail = F)*2
-  return(invisible(list(I = i, invI = ii, se = se, zvalue = zvalue, pvalue = pval)))
+  return(invisible(list(invI = ii, se = se, zvalue = zvalue, pvalue = pval)))
 }

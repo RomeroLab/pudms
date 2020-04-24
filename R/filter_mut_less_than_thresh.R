@@ -62,7 +62,7 @@ filter_mut_less_than_thresh<-function(Xprotein, order= 1, nobs_thresh=10, checkR
   if(checkResFullRank){
     if(nrow(res$X) > ncol(res$X)){ # tall matrix
       if (verbose) cat("check whether a filtered X is a full rank matrix\n")
-      Xrank = rankMatrix(x = res$X,method = 'qr')
+      Xrank = rankMatrix(x = Matrix::crossprod(res$X),method = 'qr')
       if(Xrank!=ncol(res$X)){
         fullrank = FALSE
         warning("- filtered X is not a full rank matrix")
