@@ -154,7 +154,7 @@ v.pudms = function(protein_dat,
   }
   
   # assign names to v.dmsfit 
-  names(v.dmsfit) = paste("fold",1:length(test_idx),sep = "")
+  names(v.dmsfit) = paste("fold",test_idx,sep = "")
   for (x in 1:length(test_idx)){names(v.dmsfit[[x]]) = paste("py1_",1:length(py1), sep = "")}
   
   # if length(test_idx)>1, for each hyperparameter py1, we obtain an averaged ROC curve
@@ -171,6 +171,7 @@ v.pudms = function(protein_dat,
   }else{
     roc_curves = lapply(1:length(py1), FUN = function(j) v.dmsfit[[1]][[j]]$test_roc$roc_curve)
   }
+  name(roc_curves) = paste("roc_",1:length(py1), sep="")
   
   if(searchPy1) {
     py1.opt = optimal_py1(roc_curves = roc_curves,py1 = py1,verbose = verbose,tol = tol)
