@@ -76,7 +76,7 @@ v.pudms = function(protein_dat,
   # train/test data split
   cvfolds = cv_grouped_dat(grouped_dat = protein_dat,test_idx = 1,nfolds = nfolds,seed = seed,return.datasets = F)
   # create training/test datasets for test_idx
-  cv.datasets = lapply(X = 1:length(test_idx),FUN = function(i) {
+  cv.datasets = lapply(X = test_idx,FUN = function(i) {
     res = cv_grouped_dat(grouped_dat = protein_dat,test_idx = i,folds = cvfolds$folds)
     res$folds = NULL
     res
@@ -99,7 +99,7 @@ v.pudms = function(protein_dat,
   if(length(lambda)!=1) {stop ("currently, this function is implemented for a single lambda value")}
   
   
-  # i: a running index for 1,,,test_idx
+  # i: a running index for 1,,,length(test_idx)
   # j: a running index for hyperparam 1,..., nhyperparam
   
   v.dmsfit = list() # list of length length(text_idx); each list contains length(py1) lists
@@ -149,7 +149,7 @@ v.pudms = function(protein_dat,
   }
   
   for(i in 1:length(test_idx)){
-    if(verbose) cat("fitting with a fold",i,"...\n")
+    if(verbose) cat("fitting with a fold",test_idx[i],"...\n")
     v.dmsfit[[i]] = pblapply(X = 1:length(py1), i=i, varlist = v1.varlist,cl = cl, FUN =v.1round)
   }
   
