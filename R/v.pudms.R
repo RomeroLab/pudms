@@ -171,7 +171,7 @@ v.pudms = function(protein_dat,
   }else{
     roc_curves = lapply(1:length(py1), FUN = function(j) v.dmsfit[[1]][[j]]$test_roc$roc_curve)
   }
-  name(roc_curves) = paste("roc_",1:length(py1), sep="")
+  names(roc_curves) = paste("roc_",1:length(py1), sep="")
   
   if(searchPy1) {
     py1.opt = optimal_py1(roc_curves = roc_curves,py1 = py1,verbose = verbose,tol = tol)
