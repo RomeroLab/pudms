@@ -141,9 +141,11 @@ v.pudms = function(protein_dat,
     roc = with(varlist, 
                adjusted_roc_curve(coef = coef(dmsfit$fit),
                                   test_grouped_dat = cv.datasets[[i]]$test_grouped_dat,
+                                  order = order,
+                                  refstate = refstate,
                                   verbose = F,
                                   py1 = py1[x],
-                                  plot = F))
+                                  plot = FALSE))
     
     list(train_fit=dmsfit,test_roc = roc,py1 = py1[x]) 
   }
