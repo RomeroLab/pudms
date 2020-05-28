@@ -18,7 +18,7 @@
 #'@param initial_coef a vector representing an initial point where we start PUlasso algorithm from.
 #'@param outfile NULL or a string; if a string is provided, an output with the name of the string will be exported in a working directory. 
 #'@param nCores the number of threads for computing.
-#'@return a list containing a fit (from grpPUlasso), result_table (data.frame), and nobs
+#'@return a list containing a fit (from grpPUlasso), result_table (data.frame), and refstate
 #'@import PUlasso
 #'@importFrom stats p.adjust
 #'@importFrom utils write.csv
@@ -129,7 +129,7 @@ pudms <- function (protein_dat,
   }
   
   if(!intercept){dat = dat[-1,]} # remove an intercept
-  res = structure(list(fit = fit, result_table = dat, call = match.call()),class="pudms.fit")
+  res = structure(list(fit = fit, result_table = dat, refstate = filtered_Xprotein$refstate,call = match.call()),class="pudms.fit")
   
   if(!is.null(outfile)) {
     cat("saving results as",outfile,"...\n")

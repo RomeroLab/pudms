@@ -24,7 +24,7 @@ create_model_frame(
 \item{verbose}{a logical value}
 }
 \value{
-a list (X,z,wei,seqId,blockidx)
+a list (X,z,wei,seqId,blockidx, refstate)
 }
 \description{
 Create a model frame list from a grouped data set

@@ -63,7 +63,7 @@ pudms(
 \item{nCores}{the number of threads for computing.}
 }
 \value{
-a list containing a fit (from grpPUlasso), result_table (data.frame), and nobs
+a list containing a fit (from grpPUlasso), result_table (data.frame), and refstate
 }
 \description{
 DMS experiments analysis using PUlasso method

@@ -5,7 +5,7 @@
 #' @param aggregate a logical value
 #' @param refstate a character which will be used for the common reference state; the default is to use the most frequent amino acid as the reference state for each of the position. 
 #' @param verbose a logical value
-#' @return a list (X,z,wei,seqId,blockidx)
+#' @return a list (X,z,wei,seqId,blockidx, refstate)
 #' @import Matrix
 #' @import magrittr
 #' @import pbapply
@@ -44,10 +44,21 @@ create_model_frame <- function(grouped_dat, order = 1, aggregate = T, refstate =
     # The most frequent state
     refstates <- pblapply( seqmat, function(x){ tbl = table(x); names(which(tbl == max(tbl)))[1] }) %>% unlist
   }else{
-    all_states = Reduce(intersect, lapply(seqmat,levels)) # levels which exist in all columns
-    if(!refstate %in% all_states){stop("refstate amino acid does not exist in all positions")}
-    refstates = rep(refstate, seqlen)
+    if(length(refstate)==1){
+      all_states = Reduce(intersect, lapply(seqmat,levels)) # levels which exist in all columns
+      if(!refstate %in% all_states){stop("refstate amino acid does not exist in all positions")}
+      refstates = rep(refstate, seqlen)
+    }else{
+      if(length(refstate)!= seqlen) stop("length(refstate) should be equal to 1 or length of protein")
+      all_states = lapply(seqmat,levels)
+      check_ext = sapply(1:length(refstate), function(i) length(intersect(refstate[i],all_states[[i]])))
+      if(!all(check_ext==1)) stop("refstate amino acid does not exist in all positions")
+      refstates = refstate
+    }
+    
   }
+  # give names to refstates
+  names(refstates) = paste("P",1:seqlen,sep="")
   
   # relevel each column of the seqmat so that ref = refstate
   seqmat_colname = colnames(seqmat)
@@ -95,13 +106,13 @@ create_model_frame <- function(grouped_dat, order = 1, aggregate = T, refstate =
     wei = wei[ridx]
     
     # summary
-    res = list(X=X,z=z,wei=wei,seqId =seqId, blockidx = blockidx)
+    res = list(X=X,z=z,wei=wei,seqId =seqId, blockidx = blockidx, refstate=refstates)
     
   }else{
     z = with(grouped_dat, c(rep(1,sum(labeled)), rep(0,sum(unlabeled)) ))
     seqId = c(with(grouped_dat, rep(seqId,labeled)), 
               with(grouped_dat, rep(seqId,unlabeled)))
-    res = list(X=X,z=z,seqId =seqId, blockidx = blockidx)
+    res = list(X=X,z=z,seqId =seqId, blockidx = blockidx, refstate = refstates)
   }
   res
 }

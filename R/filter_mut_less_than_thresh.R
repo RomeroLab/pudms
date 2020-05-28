@@ -1,13 +1,13 @@
 #' Delete columns such that colSums <= nobs_thresh, and rows which contain a mutation into the deleted columns
 #' 
-#'@param Xprotein list (X,z,wei, seqId, blockId)
+#'@param Xprotein list (X,z,wei, seqId, blockId, refstate)
 #'@param order an integer; 1= main effects, 2= main effects + pairwise effects
 #'@param nobs_thresh an integer threshold
 #'@param checkResFullRank a logical value 
 #'@param verbose a logical value. The default is TRUE
 #'@import Matrix
 #'@import doParallel
-#'@return a list (X,z,wei, seqId, blockId)
+#'@return a list (X,z,wei, seqId, blockId, refstate)
 #'@export
 filter_mut_less_than_thresh<-function(Xprotein, order= 1, nobs_thresh=10, checkResFullRank=T,verbose = T){
   
@@ -53,7 +53,8 @@ filter_mut_less_than_thresh<-function(Xprotein, order= 1, nobs_thresh=10, checkR
              z=Xprotein$z[ridx],
              wei=Xprotein$wei[ridx],
              seqId=Xprotein$seqId[ridx],
-             blockidx=Xprotein$blockidx[cidx])
+             blockidx=Xprotein$blockidx[cidx],
+             refstate=Xprotein$refstate)
   
   nremoved_seq = (Xprotein$seqId %>% unique %>% length) - (res$seqId %>% unique %>% length)
   if(nremoved_seq >0) {cat("\n",nremoved_seq,"unique sequences which contain a feature whose nmuts <=",nobs_thresh," are removed\n")}

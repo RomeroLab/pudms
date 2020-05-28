@@ -13,7 +13,7 @@ filter_mut_less_than_thresh(
 )
 }
 \arguments{
-\item{Xprotein}{list (X,z,wei, seqId, blockId)}
+\item{Xprotein}{list (X,z,wei, seqId, blockId, refstate)}
 
 \item{order}{an integer; 1= main effects, 2= main effects + pairwise effects}
 
@@ -24,7 +24,7 @@ filter_mut_less_than_thresh(
 \item{verbose}{a logical value. The default is TRUE}
 }
 \value{
-a list (X,z,wei, seqId, blockId)
+a list (X,z,wei, seqId, blockId, refstate)
 }
 \description{
 Delete columns such that colSums <= nobs_thresh, and rows which contain a mutation into the deleted columns

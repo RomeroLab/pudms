@@ -51,7 +51,7 @@ adjusted_roc_curve = function(rocdata = NULL,
   roc_curve$auc = (r$auc-py1/2)/(1-py1)
   
   if(plot){
-    rocplot = rocplot(roc_curve,py1, adjusted = TRUE)
+    rocplot = rocplot(roc_curve,py1)
   }else{
     rocplot = NULL
   }
