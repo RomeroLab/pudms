@@ -30,14 +30,6 @@ create_model_frame <- function(grouped_dat, order = 1, aggregate = T, refstate =
   seqmat = data.frame(pblapply(1:seqlen,function(i){substr(sequence,i,i)}))
   colnames(seqmat) = paste("P",0:(seqlen-1),".",sep="")
   
-  # check number of unique factors in each position
-  pbo = pboptions()
-  if(verbose){cat("check number of unique factors in each position\n")}
-  if(!verbose){pboptions(type ="none")}
-  cidx = pblapply(seqmat, function(x){length(levels(x))}) %>% unlist>1
-  seqmat = seqmat[,cidx]
-  seqlen = ncol(seqmat)
-  
   if(is.null(refstate)){
     if(verbose){cat("obtain ``reference`` amino-acid states\n")}
     # Obtain "reference" amino-acid states
@@ -58,13 +50,25 @@ create_model_frame <- function(grouped_dat, order = 1, aggregate = T, refstate =
     
   }
   # give names to refstates
-  names(refstates) = paste("P",1:seqlen,sep="")
+  names(refstates) = colnames(seqmat)
   
-  # relevel each column of the seqmat so that ref = refstate
+  # change "P" in the column names into the reference states
   seqmat_colname = colnames(seqmat)
   seqmat_colname = paste(refstates, gsub(seqmat_colname,pattern = "P",replacement = ""), sep="")
+  
+  # relevel each column of the seqmat so that ref = refstate
   seqmat = data.frame (lapply(1:seqlen, function(i){relevel(seqmat[,i],ref = refstates[i])} ))
   colnames(seqmat) = seqmat_colname
+  
+  # check number of unique factors in each position
+  pbo = pboptions()
+  if(verbose){cat("check number of unique factors in each position\n")}
+  if(!verbose){pboptions(type ="none")}
+  cidx = pblapply(seqmat, function(x){length(levels(x))}) %>% unlist>1
+  
+  # keep positions with varying states
+  seqmat = seqmat[,cidx]
+  
   
   if(verbose){cat("convert to the sparse one-hot-encoding model matrix\n")}
   # convert to the model matrix

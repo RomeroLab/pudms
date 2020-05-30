@@ -90,12 +90,11 @@ v.pudms = function(protein_dat,
     searchPy1 = TRUE
     # if py1==NULL, use a default py1 seq
     if(is.null(py1)){py1 = exp(seq(log(1e-3),log(0.5),length.out = nhyperparam))}
-    # check whether py1 is a valid input
-    if(!all(py1>0&py1<1)) {stop("all py1 values need to be in (0,1)")}
-    
   }else{
     searchPy1 = FALSE
   }
+  # check whether py1 is a valid input
+  if(!all(py1>0&py1<1)) {stop("all py1 values need to be in (0,1)")}
   if(length(lambda)!=1) {stop ("currently, this function is implemented for a single lambda value")}
   
   
@@ -184,10 +183,15 @@ v.pudms = function(protein_dat,
     py1.opt = NULL
   }
   
-  if(full.fit & !is.null(py1.opt)){
+  if(full.fit & (!is.null(py1.opt) | length(py1)==1)){
+    if(!is.null(py1.opt)){
+      py1.dmsfit = py1.opt
+    }else if(length(py1)==1){
+      py1.dmsfit = py1
+    }
     if (verbose) cat("fitting with a full dataset...\n")
     dmsfit = pudms(protein_dat = protein_dat,
-                   py1 = py1.opt,
+                   py1 = py1.dmsfit,
                    order = order, 
                    refstate = refstate,
                    verbose= FALSE,

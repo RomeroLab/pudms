@@ -70,11 +70,14 @@ filter_mut_less_than_thresh<-function(Xprotein, order= 1, nobs_thresh=10, checkR
       }else{
         fullrank = TRUE
         if(verbose) cat("filtered X is a full rank matrix\n")}
+    }else{
+      if(verbose) cat("ncol(X) > nrow(X) \n")
+      fullrank = FALSE
     }
     
   }else{
     fullrank = FALSE
-    if(verbose) cat("ncol(X) > nrow(X) \n")
+    
   }
   
   res$fullrank = fullrank
