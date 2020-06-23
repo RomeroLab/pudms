@@ -8,6 +8,7 @@ adjusted_roc_curve(
   rocdata = NULL,
   coef = NULL,
   test_grouped_dat = NULL,
+  Xprotein_test = NULL,
   order = 1,
   refstate = NULL,
   verbose = T,

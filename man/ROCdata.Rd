@@ -4,7 +4,15 @@
 \alias{rocdata}
 \title{Create a data table (seqId, labeled, unlabeled, pr_test) to create a ROC curve}
 \usage{
-rocdata(coef, test_grouped_dat, order = 1, refstate = NULL, verbose = T)
+rocdata(
+  coef,
+  test_grouped_dat,
+  Xprotein_test = NULL,
+  order = 1,
+  refstate = NULL,
+  nCores = 1,
+  verbose = T
+)
 }
 \arguments{
 \item{coef}{a named vector for the fitted coefficient vector}
