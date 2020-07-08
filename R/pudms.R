@@ -47,6 +47,7 @@ pudms <- function (protein_dat,
                                 order = order, 
                                 aggregate = T,
                                 refstate = refstate,
+                                nCores = nCores,
                                 verbose = verbose)
   
   # remove sequences which contain a feature whose number of mutations < nobs_thresh
