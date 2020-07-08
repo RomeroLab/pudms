@@ -6,11 +6,13 @@
 #' @param verbose a logical value
 #' @param refstate a character which will be used for the common reference state; the default is to use the most frequent amino acid as the reference state for each of the position. 
 #' @return a data table containing (seqId, labeled, unlabeled, pr_test)
-#'@export
+#' @export
 rocdata = function(coef,
                    test_grouped_dat,
+                   Xprotein_test=NULL,
                    order = 1,
                    refstate = NULL,
+                   nCores = 1,
                    verbose=T) {
   
   unique_X <- function(X,seqId){
@@ -21,17 +23,21 @@ rocdata = function(coef,
     Xaug_u[,-1]
   }
   
-  # create (X,z,wei) for a validation set
-  if(verbose) cat("create Xtest for validation examples \n")
-  a_Xdat_test = create_model_frame(
-    grouped_dat = test_grouped_dat,
-    order = order,
-    aggregate = T, 
-    refstate = refstate,
-    verbose=verbose)
+  if(is.null(Xprotein_test)){
+    # create (X,z,wei) for a validation set
+    if(verbose) cat("create Xtest for validation examples \n")
+    Xprotein_test = create_model_frame(
+      grouped_dat = test_grouped_dat,
+      order = order,
+      aggregate = T, 
+      refstate = refstate,
+      nCores = nCores,
+      verbose=verbose)
+  }
+  
   
   # keep only unique sequences in Xtest
-  Xtest_unique = with(a_Xdat_test, unique_X(X, seqId))
+  Xtest_unique = with(Xprotein_test, unique_X(X, seqId))
   
   if(dim(coef)[2]==1){coef = coef[,1]}
   if(is.null(names(coef))){stop("coef should be a named vector")}
@@ -46,5 +52,5 @@ rocdata = function(coef,
   eta = Xtest %*% coef_test + a0
   pr_test = as.numeric(1 / (1 + exp(-eta)))
   
-  with(test_grouped_dat, data.table(seqId = sort(unique(a_Xdat_test$seqId)), labeled, unlabeled, pr_test))
+  with(test_grouped_dat, data.table(seqId = sort(unique(Xprotein_test$seqId)), labeled, unlabeled, pr_test))
 }
