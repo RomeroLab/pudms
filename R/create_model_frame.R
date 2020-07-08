@@ -42,9 +42,11 @@ create_model_frame <- function(grouped_dat,
     }else if(order==2){
       X = sparse.model.matrix(~.^2,data = seqmat)
     }
+    X = X[,-1]
+    cidx=which(Matrix::colSums(X)!=0)
+    X = X[,cidx,drop=F]
   }
   
-  X = X[,-1]
   colnames = colnames(X)
   extract_pos = function(x){x[1]%>% gsub(pattern = "[^0-9]",replacement = "") %>% unlist}
   # unique block

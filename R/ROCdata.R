@@ -46,8 +46,12 @@ rocdata = function(coef,
   # keep coefficients in coef in Xtest_unique (no contribution otherwise)
   # keep columns in Xtest_unique which exist in coef
   a0 = coef[1]
-  coef_test = coef[names(coef) %in% colnames(Xtest_unique)]
+  coef_test = coef[names(coef) %in% colnames(Xtest_unique)] #intercept is never included
   Xtest = Xtest_unique[, colnames(Xtest_unique) %in% names(coef)]
+  if(verbose){
+    cat("length of coef(used)/coef(input):",length(coef_test),"/",length(coef[-1]),"\n")
+    cat("ncol(Xtest;used)/ncol(Xtest;input):",ncol(Xtest),"/",ncol(Xtest_unique),"\n")
+  }
   
   eta = Xtest %*% coef_test + a0
   pr_test = as.numeric(1 / (1 + exp(-eta)))
