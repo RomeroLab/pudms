@@ -38,7 +38,7 @@ filter_mut_less_than_thresh<-function(Xprotein, order= 1, nobs_thresh=10, checkR
       ndelCols = ndelCols.new 
       
       # print(nchangeCols)
-      ridx = which(Matrix::rowSums(wX[,cidx])==0) #ridx to keep
+      ridx = which(Matrix::rowSums(wX[,cidx,drop=F])==0) #ridx to keep
     }
     
     return(list(ridx=ridx,cidx=cidx))

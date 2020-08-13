@@ -4,7 +4,7 @@
 \alias{sparse.model.matrix.parallel}
 \title{Create a sparse model matrix in a parallel manner}
 \usage{
-sparse.model.matrix.parallel(order = c(1, 2), data, nCores = 1)
+sparse.model.matrix.parallel(order = c(1, 2), data, nCores = 1, verbose = TRUE)
 }
 \arguments{
 \item{order}{an integer; 1= main effects, 2= main effects + pairwise effects}

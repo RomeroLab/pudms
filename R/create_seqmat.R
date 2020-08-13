@@ -26,7 +26,7 @@ create_seqmat<-function(grouped_dat, aggregate = T, refstate = NULL,verbose=T){
   if(verbose){cat("create a sequence matrix\n")}
   # create seq mat (each row is a length seqlen vector)
   if(!verbose){pboptions(type ="none")} # suppress a progress bar if verbose == F
-  seqmat = data.frame(pblapply(1:seqlen,function(i){substr(sequence,i,i)}))
+  seqmat = data.frame(pblapply(1:seqlen,function(i){substr(sequence,i,i)}),stringsAsFactors = TRUE)
   colnames(seqmat) = paste("P",0:(seqlen-1),".",sep="")
   
   if(is.null(refstate)){

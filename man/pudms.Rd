@@ -22,7 +22,8 @@ pudms(
   initial_coef = NULL,
   p.adjust.method = "BH",
   outfile = NULL,
-  nCores = 1
+  nCores = 1,
+  exclude_gap = TRUE
 )
 }
 \arguments{
@@ -61,6 +62,8 @@ pudms(
 \item{outfile}{NULL or a string; if a string is provided, an output with the name of the string will be exported in a working directory.}
 
 \item{nCores}{the number of threads for computing.}
+
+\item{exclude_gap}{a logical value. The default is TRUE. If TRUE, mutations corresponding to the gap (*) will not be considered for group p-value calculations}
 }
 \value{
 a list containing a fit (from grpPUlasso), result_table (data.frame), and refstate
