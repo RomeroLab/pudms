@@ -18,6 +18,7 @@
 #'@param initial_coef a vector representing an initial point where we start PUlasso algorithm from.
 #'@param outfile NULL or a string; if a string is provided, an output with the name of the string will be exported in a working directory. 
 #'@param nCores the number of threads for computing.
+#'@param exclude_gap a logical value. The default is TRUE. If TRUE, mutations corresponding to the gap (*) will not be considered for group p-value calculations
 #'@return a list containing a fit (from grpPUlasso), result_table (data.frame), and refstate
 #'@import PUlasso
 #'@importFrom stats p.adjust
@@ -40,7 +41,8 @@ pudms <- function (protein_dat,
                    initial_coef = NULL,
                    p.adjust.method = "BH",
                    outfile = NULL,
-                   nCores = 1){
+                   nCores = 1,
+                   exclude_gap = TRUE){
 
   if(verbose) cat(" 1. create model frames from an aggregated dataset:\n")
   Xprotein = create_model_frame(grouped_dat = protein_dat,
@@ -94,9 +96,10 @@ pudms <- function (protein_dat,
         weights = filtered_Xprotein$wei,
         effective_n_prop = n_eff_prop
       )
-    
+    vcov = pvalues$invI
   }else{
     pvalues = NULL
+    vcov = NULL
   }
   
   # export results to the excel file
@@ -113,7 +116,10 @@ pudms <- function (protein_dat,
       n_eff_prop = n_eff_prop,
       p.adjust.method = p.adjust.method,
       nCores = nCores,
-      verbose = verbose
+      verbose = verbose,
+      exclude_gap = exclude_gap,
+      order= order,
+      intercept = intercept
     )
     
   }else{
@@ -126,11 +132,11 @@ pudms <- function (protein_dat,
                      nobs = nobs,
                      eff_nobs = n_eff_prop*nobs)
     }
-    
+    if(!intercept){dat = dat[group!=-1,]} # remove an intercept
   }
   
-  if(!intercept){dat = dat[-1,]} # remove an intercept
-  res = structure(list(fit = fit, result_table = dat, refstate = filtered_Xprotein$refstate,call = match.call()),class="pudms.fit")
+  
+  res = structure(list(fit = fit, vcov= vcov, result_table = dat, refstate = filtered_Xprotein$refstate,call = match.call()),class="pudms.fit")
   
   if(!is.null(outfile)) {
     cat("saving results as",outfile,"...\n")
