@@ -132,7 +132,7 @@ pudms <- function (protein_dat,
                      nobs = nobs,
                      eff_nobs = n_eff_prop*nobs)
     }
-    if(!intercept){dat = dat[group!=-1,]} # remove an intercept
+    if(!intercept){dat = dat[-1,]} # remove an intercept
   }
   
   
