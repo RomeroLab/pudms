@@ -11,6 +11,8 @@
 #'@export
 filter_mut_less_than_thresh<-function(Xprotein, order= 1, nobs_thresh=10, checkResFullRank=T,verbose = T){
   
+  if(verbose){cat("\n* remove sequences which contain a feature whose nmuts <= ",nobs_thresh,"\n", sep="")}
+  
   if(order==1){
     midx = 1:ncol(Xprotein$X)
   }else{
@@ -57,12 +59,34 @@ filter_mut_less_than_thresh<-function(Xprotein, order= 1, nobs_thresh=10, checkR
              refstate=Xprotein$refstate)
   
   nremoved_seq = (Xprotein$seqId %>% unique %>% length) - (res$seqId %>% unique %>% length)
-  if(nremoved_seq >0) {cat("\n",nremoved_seq,"unique sequences which contain a feature whose nmuts <=",nobs_thresh," are removed\n")}
+  if(nremoved_seq >0 & verbose) {cat(nremoved_seq," unique sequences which contain a feature whose nmuts <= ",nobs_thresh," are removed\n",sep="")}
   
+  # check duplicated columns
+  
+  if(verbose) cat("\n* check whether there exist any duplicated columns\n")
+  check_dupcols = check_duplicated_columns(res$X)
+  dup_cols = check_dupcols$duplicated_columns
+  
+  if(length(check_dupcols$duplicated_indices)>0){
+    # remove duplicated columns
+    res$X = res$X[,-check_dupcols$duplicated_indices,drop=F]
+    res$blockidx = res$blockidx[-check_dupcols$duplicated_indices]
+    
+    if(verbose){
+      cat(length(check_dupcols$duplicated_indices),"duplicated columns are found and removed in the filtered X \n")
+      for(i in 1:length(dup_cols)){
+        cat(names(dup_cols[i]),"equals to", dup_cols[[i]],"\n")
+      }
+    }
+    
+  }else{
+    if(verbose) cat("no duplicated columns in the filtered X \n")
+    dup_cols = NULL
+  }
   
   if(checkResFullRank){
     if(nrow(res$X) > ncol(res$X)){ # tall matrix
-      if (verbose) cat("check whether a filtered X is a full rank matrix\n")
+      if (verbose) cat("\n* check whether a filtered X is a full rank matrix\n")
       Xrank = rankMatrix(x = Matrix::crossprod(res$X),method = 'qr')
       if(Xrank!=ncol(res$X)){
         fullrank = FALSE
@@ -81,6 +105,7 @@ filter_mut_less_than_thresh<-function(Xprotein, order= 1, nobs_thresh=10, checkR
   }
   
   res$fullrank = fullrank
+  res$duplicated_columns = dup_cols
   return(res)
 }    
 

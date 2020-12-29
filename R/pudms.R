@@ -44,7 +44,7 @@ pudms <- function (protein_dat,
                    nCores = 1,
                    exclude_gap = TRUE){
 
-  if(verbose) cat(" 1. create model frames from an aggregated dataset:\n")
+  if(verbose) cat("1. create model frames from an aggregated dataset:\n")
   Xprotein = create_model_frame(grouped_dat = protein_dat,
                                 order = order, 
                                 aggregate = T,
@@ -64,9 +64,12 @@ pudms <- function (protein_dat,
   remove(Xprotein); gc() 
   
   # if X is not a column full rank matrix, we do not calculate p-values
-  if(!filtered_Xprotein$fullrank) pvalue = FALSE
+  if(!filtered_Xprotein$fullrank){
+    if(pvalue){cat("p-value computation will be skipped due to rank deficiency of X\n")}
+    pvalue = FALSE
+  } 
   
-  if(verbose) cat("\n\n 2. fit a model\n")
+  if(verbose) cat("\n\n2. fit a model\n")
   fit = grpPUlasso(X = filtered_Xprotein$X,
                    z = filtered_Xprotein$z,
                    weights = filtered_Xprotein$wei,
@@ -82,7 +85,7 @@ pudms <- function (protein_dat,
   
   
   if(pvalue){
-    if(verbose) cat("\n\n 3. compute p-values\n")
+    if(verbose) cat("\n\n3. compute p-values\n")
     if(lambda>0){stop("currently p-value computation is supported only for lambda == 0")}
     
     if(n_eff_prop>1 || n_eff_prop <= 0){stop ("n_eff_prop should be between 0 and 1")}
@@ -136,11 +139,12 @@ pudms <- function (protein_dat,
   }
   
   
-  res = structure(list(fit = fit, vcov= vcov, result_table = dat, refstate = filtered_Xprotein$refstate,call = match.call()),class="pudms.fit")
+  res = structure(list(fit = fit, vcov= vcov, result_table = dat, refstate = filtered_Xprotein$refstate, dup_cols = filtered_Xprotein$duplicated_columns, call = match.call()), class="pudms.fit")
   
   if(!is.null(outfile)) {
     cat("saving results as",outfile,"...\n")
     write.csv(res$result_table, file= outfile)}
+    
   
   return(res)
 }
