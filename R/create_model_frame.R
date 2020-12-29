@@ -31,7 +31,7 @@ create_model_frame <- function(grouped_dat,
   seqmat =list.seqmat$seqmat
   refstate = list.seqmat$refstate
   
-  if(verbose){cat("convert to the sparse one-hot-encoding model matrix\n")}
+  if(verbose){cat("* convert to the sparse one-hot-encoding model matrix\n")}
   if(order>2){stop("order>2 is not supported yet")}
   if(nCores>1){
     X = sparse.model.matrix.parallel(order = order,data = seqmat,nCores = nCores,verbose=verbose)

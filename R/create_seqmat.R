@@ -23,14 +23,14 @@ create_seqmat<-function(grouped_dat, aggregate = T, refstate = NULL,verbose=T){
   seqlen = nchar(grouped_dat$sequence[1]) # number of positions
   
   
-  if(verbose){cat("create a sequence matrix\n")}
+  if(verbose){cat("* create a sequence matrix\n")}
   # create seq mat (each row is a length seqlen vector)
   if(!verbose){pboptions(type ="none")} # suppress a progress bar if verbose == F
   seqmat = data.frame(pblapply(1:seqlen,function(i){substr(sequence,i,i)}),stringsAsFactors = TRUE)
   colnames(seqmat) = paste("P",0:(seqlen-1),".",sep="")
   
   if(is.null(refstate)){
-    if(verbose){cat("obtain ``reference`` amino-acid states\n")}
+    if(verbose){cat("* obtain ``reference`` amino-acid states\n")}
     # Obtain "reference" amino-acid states
     # The most frequent state
     refstates <- pblapply( seqmat, function(x){ tbl = table(x); names(which(tbl == max(tbl)))[1] }) %>% unlist
@@ -61,7 +61,7 @@ create_seqmat<-function(grouped_dat, aggregate = T, refstate = NULL,verbose=T){
   
   # check number of unique factors in each position
   pbo = pboptions()
-  if(verbose){cat("check number of unique factors in each position\n")}
+  if(verbose){cat("* check number of unique factors in each position\n")}
   if(!verbose){pboptions(type ="none")}
   cidx = pblapply(seqmat, function(x){length(levels(x))}) %>% unlist>1
   
